@@ -84,9 +84,9 @@
 
 /gt-cselib.h
 
-/gt-dboxout.h
+/gt-dbxout.h
 
-/gt-dwarfasm.h
+/gt-dwarf2asm.h
 
 /gt-dwarf2out.h
 
@@ -212,7 +212,9 @@
 
 /insn-recog.c
 
-/min-isnm-modes.c
+/min-isnn-modes.c
+
+/options.c
 
 /s-gtype
 
