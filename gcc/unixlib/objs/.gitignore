@@ -26,5 +26,6 @@
 /unix
 /UnixLib
 /wchar
+/SharedULib,ffa
 /*,ffd
 /Makefile,fe1
