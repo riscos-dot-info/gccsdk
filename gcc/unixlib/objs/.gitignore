@@ -14,6 +14,8 @@
 
 /math-asm
 
+/misc
+
 /module
 
 /netlib
@@ -22,9 +24,13 @@
 
 /pwd
 
+/regexp
+
 /resolv
 
 /resource
+
+/sched
 
 /scl
 
@@ -59,5 +65,7 @@
 /SharedULib,ffa
 
 /*,ffd
+
+/Makefile
 
 /Makefile,fe1
