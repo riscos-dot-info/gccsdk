@@ -12,6 +12,8 @@
 
 /c-parse.h
 
+/c-parse.y
+
 /config.log
 
 /config.status
