@@ -6,6 +6,8 @@
 
 /auto-host.h.in
 
+/autom4te.cache
+
 /c-parse.c
 
 /c-parse.h
@@ -15,6 +17,10 @@
 /config.status
 
 /configure
+
+/gcov-iov
+
+/gcov-iov.h
 
 /gengtype-lex.c
 
@@ -46,13 +52,27 @@
 
 /gt-c-pragma.h
 
+/gt-cfglayout.h
+
+/gt-cgraph.h
+
+/gt-coverage.h
+
 /gt-cp-call.h
 
 /gt-cp-decl.h
 
 /gt-cp-decl2.h
 
-/gt-cp-parse.h
+/gt-cp-mangle.h
+
+/gt-cp-method.h
+
+/gt-cp-name-lookup.h
+
+/gt-cp-parser.h
+
+/gt-cp-semantics.h
 
 /gt-cp-pt.h
 
@@ -63,6 +83,10 @@
 /gt-cp-tree.h
 
 /gt-cselib.h
+
+/gt-dboxout.h
+
+/gt-dwarfasm.h
 
 /gt-dwarf2out.h
 
@@ -110,7 +134,13 @@
 
 /gt-java-parse.h
 
+/gt-java-resource.h
+
+/gt-langhooks.h
+
 /gt-lists.h
+
+/gt-objc-objc-act.h
 
 /gt-optabs.h
 
@@ -125,6 +155,8 @@
 /gt-sdbout.h
 
 /gt-stmt.h
+
+/gt-stringpool.h
 
 /gt-stor-layout.h
 
@@ -168,6 +200,10 @@
 
 /insn-flags.h
 
+/insn-modes.c
+
+/insn-modes.h
+
 /insn-opinit.c
 
 /insn-output.c
@@ -175,6 +211,8 @@
 /insn-peep.c
 
 /insn-recog.c
+
+/min-isnm-modes.c
 
 /s-gtype
 
