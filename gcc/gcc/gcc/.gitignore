@@ -1,5 +1,3 @@
-/.cvsignore
-
 /Makefile
 
 /auto-host.h
