@@ -216,6 +216,8 @@
 
 /options.c
 
+/options.h
+
 /s-gtype
 
 /tm-preds.h
