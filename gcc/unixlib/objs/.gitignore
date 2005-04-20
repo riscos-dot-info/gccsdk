@@ -1,8 +1,12 @@
+/assert
+
 /common
 
 /complex
 
 /crypt
+
+/ctype
 
 /fenv
 
@@ -13,6 +17,8 @@
 /grp
 
 /incl-local
+
+/inttypes
 
 /libm-complex
 
