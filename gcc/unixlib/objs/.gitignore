@@ -8,6 +8,8 @@
 
 /ctype
 
+/debug
+
 /fenv
 
 /gcccompat
