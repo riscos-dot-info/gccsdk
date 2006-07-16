@@ -1,7 +1,0 @@
-
-AB_CATEGORY=cli
-
-AB_PRECONF=:
-
-AB_MAKE="$AB_MAKE bzip2"
-
