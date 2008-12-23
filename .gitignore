@@ -15,3 +15,10 @@
 .*.swp
 .DS_store
 # Simulated Subversion default ignores end here
+/builddir-cross
+/builddir-riscos
+/gccsdk-params
+/orig.binutils
+/orig.gcc
+/release-area
+/srcdir
