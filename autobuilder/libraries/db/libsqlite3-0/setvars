@@ -1,7 +1,0 @@
-
-export config_TARGET_EXEEXT=$AB_EXEEXT
-
-AB_INSTALL=yes
-
-AB_CONFLAGS=--disable-tcl
-

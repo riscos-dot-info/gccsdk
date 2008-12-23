@@ -1,8 +1,0 @@
-AB_SVN_ROOT=svn://svn.mplayerhq.hu/ffmpeg/trunk
-AB_CVS_MODULE=ffmpeg
-AB_ZIPNAME=ffmpeg-svn-$(date +%Y%m%d)
-
-AB_PRECONF=:
-
-# Source actually contains ARMV5 instuctions, so can't select ARMV4
-./configure --prefix=$GCCSDK_INSTALL_ENV --enable-static --disable-shared --cross-prefix=$GCCSDK_INSTALL_CROSSBIN/arm-unknown-riscos- --arch=arm --cpu=armv5te --extra-cflags=-DHAVE_LRINTF=1 --cross-compile

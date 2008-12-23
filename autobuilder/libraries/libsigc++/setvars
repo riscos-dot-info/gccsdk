@@ -1,4 +1,0 @@
-AB_INSTALL=yes
-
-touch ac_thread.h
-

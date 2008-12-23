@@ -1,9 +1,0 @@
-
-AB_CATEGORY=terminal/test
-
-AB_FILESPATH="mutt$AB_EXEEXT doc/*,faf COPYRIGHT"
-
-AB_CONFLAGS=--without-regex
-
-AB_MANPAGE=doc/mutt.man
-
