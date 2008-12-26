@@ -1,8 +1,0 @@
-| Run file for Toppler
-
-Wimpslot -min 14208K -max 14208K
-
-Set Toppler$Dir <Obey$Dir>
-
-| Note -f option gives fullscreen
-Run <Toppler$Dir>.!RunImage -f >null: 2>null:

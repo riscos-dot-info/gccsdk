@@ -1,9 +1,0 @@
-
-AB_CATEGORY=Utilities
-
-AB_MANPAGE="doc/bc.1 doc/dc.1"
-
-ab_package() {
-  cp -av $S/bc/bc$AB_EXEEXT $S/dc/dc$AB_EXEEXT $S/COPYING $D
-}
-
