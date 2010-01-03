@@ -17,12 +17,8 @@
 # Simulated Subversion default ignores end here
 # The contents of the svn:ignore property on the branch root.
 /builddir
-/buildsteps
-/builddir-cross
-/builddir-riscos
+/buildstepsdir
 /gccsdk-params
-/orig.binutils
-/orig.gcc
 /release-area
 /srcdir
 /srcdir.orig
