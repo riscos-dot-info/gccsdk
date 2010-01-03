@@ -16,12 +16,8 @@
 .DS_store
 # Simulated Subversion default ignores end here
 /builddir
-/buildsteps
-/builddir-cross
-/builddir-riscos
+/buildstepsdir
 /gccsdk-params
-/orig.binutils
-/orig.gcc
 /release-area
 /srcdir
 /srcdir.orig
