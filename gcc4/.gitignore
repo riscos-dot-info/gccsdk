@@ -1,7 +1,6 @@
-/builddir-cross
-/builddir-riscos
+/builddir
+/buildstepsdir
 /gccsdk-params
-/orig.binutils
-/orig.gcc
 /release-area
 /srcdir
+/srcdir.orig
