@@ -1,6 +1,0 @@
-AB_SVN=svn://semichrome.net/trunk/rufl
-AB_PVERSION=svn-$(date +%Y%m%d)
-
-AB_INSTALL=yes
-
-export PREFIX=$GCCSDK_INSTALL_ENV

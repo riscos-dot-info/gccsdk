@@ -1,6 +1,0 @@
-| Run file for Tremor
-
-IconSprites <Obey$Dir>.!Sprites
-
-Set Tremor$Dir <Obey$Dir>
-Set Tremor$Path <Obey$Dir>.

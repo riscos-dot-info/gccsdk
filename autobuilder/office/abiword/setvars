@@ -1,3 +1,0 @@
-AB_CONFLAGS=--disable-spellcheck
-
-export LIBS="-lbz2 -ldbus-1 -lexpat -lgailutil -lpixman-1 -ldbus-glib-1"
