@@ -1,4 +1,0 @@
-Set GLHack$Dir <Obey$Dir>
-
-WIMPSLOT
-Run <GLHack$Dir>.glhack --windowed >null: 2>null:

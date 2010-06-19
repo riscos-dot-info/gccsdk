@@ -1,5 +1,0 @@
-WIMPSLOT
-
-Set Wormux$Dir <Obey$Dir>
-
-Run <Wormux$Dir>.wormux >null: 2>null:

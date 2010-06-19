@@ -1,5 +1,0 @@
-AB_NOREMOTE=yes
-
-# Dummy makefile
-
-echo "all:" > Makefile

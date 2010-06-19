@@ -1,6 +1,0 @@
-mkdir temp
-
-mv Doc _projects Zip* temp
-mv temp ziparchive
-cd ziparchive
-
