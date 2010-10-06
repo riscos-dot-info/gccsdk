@@ -1,4 +1,6 @@
+/autoconf-for-binutils
 /autoconf-for-gcc
+/automake-for-binutils
 /automake-for-gcc
 /binutils
 /newlib
