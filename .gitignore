@@ -15,3 +15,9 @@
 .*.swp
 .DS_store
 # Simulated Subversion default ignores end here
+/builddir
+/buildstepsdir
+/gccsdk-params
+/release-area
+/srcdir
+/srcdir.orig
