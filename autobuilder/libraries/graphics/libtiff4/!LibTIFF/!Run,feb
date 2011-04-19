@@ -1,6 +1,0 @@
-| Run file for LibTIFF
-
-IconSprites <Obey$Dir>.!Sprites
-
-Set LibTIFF$Dir <Obey$Dir>
-Set LibTIFF$Path <Obey$Dir>.

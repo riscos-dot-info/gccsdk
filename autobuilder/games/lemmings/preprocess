@@ -1,3 +1,0 @@
-for cpp in $(find . -name "*.cpp") ; do
- sed -i -e 's/"data\//"\/<Lemmings\$Dir>\/data\//g' $cpp
-done

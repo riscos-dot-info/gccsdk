@@ -1,8 +1,0 @@
-
-AB_CATEGORY=Emulation
-
-export CFLAGS="-I$GCCSDK_INSTALL_ENV/include -O2"
-
-AB_CONFLAGS="--target=sdl --enable-monitortrace=no --enable-readline=no"
-
-cd src

@@ -1,4 +1,0 @@
-| Boot file for dosbox
-
-If "<DosBox$Dir>" = "" Then Set DosBox$Dir <Obey$Dir>
-IconSprites <DosBox$Dir>.!Sprites

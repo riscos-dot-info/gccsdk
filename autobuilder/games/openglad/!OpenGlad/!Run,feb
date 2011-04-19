@@ -1,5 +1,0 @@
-WIMPSLOT
-
-Set OpenGlad$Dir <Obey$Dir>
-
-Run <OpenGlad$Dir>.openglad >null: 2><Obey$Dir>.stderr
