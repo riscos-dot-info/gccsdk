@@ -1,6 +1,6 @@
 Index: gcc/config.gcc
 ===================================================================
---- gcc/config.gcc	(revision 174131)
+--- gcc/config.gcc	(revision 174637)
 +++ gcc/config.gcc	(working copy)
 @@ -879,6 +879,15 @@
  	tmake_file="arm/t-arm arm/t-arm-elf t-rtems arm/t-rtems"
