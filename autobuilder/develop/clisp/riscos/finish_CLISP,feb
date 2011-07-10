@@ -1,1 +1,0 @@
-TaskWindow <Obey$Dir>.obey.make_lispinit -wimpslot 2000K -name "Finish CLISP" -quit

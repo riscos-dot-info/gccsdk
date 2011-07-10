@@ -1,5 +1,0 @@
-| Run file for libglib2.0
-
-Set LibGLib2$Dir <Obey$Dir>
-Set LibGLib2$Path <Obey$Dir>.
-

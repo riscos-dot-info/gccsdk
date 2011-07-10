@@ -1,3 +1,0 @@
-Iconsprites <Obey$Dir>.!Sprites
-Wimpslot -min 3000k -max 3000k
-Run <Obey$Dir>.gmp3info > <Obey$Dir>.stdout 2> <Obey$Dir>.stderr

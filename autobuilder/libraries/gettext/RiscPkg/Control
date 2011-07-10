@@ -1,3 +1,0 @@
-Description: GNU Internationalization utilities.
- static libraries libasprintf and libintl and the
- header files to use them.
