@@ -76,7 +76,7 @@ Define (const char *msg, Symbol *sym, unsigned symType, ValueTag legal)
 	  fail = true;
 	}
       else
-	fail = Symbol_Define (sym, SYMBOL_DEFINED | SYMBOL_DECLARED | SYMBOL_ABSOLUTE | symType, value);
+	fail = Symbol_Define (sym, SYMBOL_DEFINED | SYMBOL_ABSOLUTE | symType, value);
     }
   return fail;
 }
@@ -170,7 +170,7 @@ c_cp (Symbol *symbol)
 bool
 c_head (void)
 {
-  const int startAreaOffset = areaCurrentSymbol->value.Data.Int.i;
+  const unsigned startAreaOffset = areaCurrentSymbol->area.info->curIdx;
   const Value *value = exprBuildAndEval (ValueString);
   switch (value->Tag)
     {
@@ -189,8 +189,8 @@ c_head (void)
         break;
     }
 
-  Area_AlignTo (areaCurrentSymbol->value.Data.Int.i, 4, NULL);
-  Put_Data (4, 0xFF000000 + areaCurrentSymbol->value.Data.Int.i - startAreaOffset);
+  Area_AlignTo (areaCurrentSymbol->area.info->curIdx, 4, NULL);
+  Put_Data (4, 0xFF000000 + areaCurrentSymbol->area.info->curIdx - startAreaOffset);
   return false;
 }
 
@@ -298,12 +298,12 @@ DefineInt (int size, bool allowUnaligned, const char *mnemonic)
 	      const char *str = result->Data.String.s;
 	      /* Lay out a string.  */
 	      for (size_t i = 0; i != len; ++i)
-		Put_AlignDataWithOffset (areaCurrentSymbol->value.Data.Int.i, privData.size, str[i], !privData.allowUnaligned);
+		Put_AlignDataWithOffset (areaCurrentSymbol->area.info->curIdx, privData.size, str[i], !privData.allowUnaligned);
 	    }
 	  else
-	    Put_AlignDataWithOffset (areaCurrentSymbol->value.Data.Int.i, privData.size, 0, !privData.allowUnaligned);
+	    Put_AlignDataWithOffset (areaCurrentSymbol->area.info->curIdx, privData.size, 0, !privData.allowUnaligned);
 	}
-      else if (Reloc_QueueExprUpdate (DefineInt_RelocUpdater, areaCurrentSymbol->value.Data.Int.i,
+      else if (Reloc_QueueExprUpdate (DefineInt_RelocUpdater, areaCurrentSymbol->area.info->curIdx,
 				 ValueInt | ValueString | ValueSymbol | ValueCode,
 				 &privData, sizeof (privData)))
 	error (ErrorError, "Illegal %s expression", mnemonic);
@@ -357,7 +357,7 @@ c_dcd (void)
 bool
 c_dci (void)
 {
-  Area_AlignTo (areaCurrentSymbol->value.Data.Int.i, 4, "instruction");
+  Area_AlignTo (areaCurrentSymbol->area.info->curIdx, 4, "instruction");
   return DefineInt (4, false, "DCI");
 }
 
@@ -426,14 +426,14 @@ DefineReal (int size, bool allowUnaligned, const char *mnemonic)
     {
       exprBuild ();
       if (gASM_Phase == ePassOne)
-	Put_FloatDataWithOffset (areaCurrentSymbol->value.Data.Int.i,
+	Put_FloatDataWithOffset (areaCurrentSymbol->area.info->curIdx,
 				 privData.size, 0., !privData.allowUnaligned);
       else
 	{
 	  ValueTag legal = ValueFloat | ValueSymbol | ValueCode;
 	  if (option_autocast)
 	    legal |= ValueInt;
-	  if (Reloc_QueueExprUpdate (DefineReal_RelocUpdater, areaCurrentSymbol->value.Data.Int.i,
+	  if (Reloc_QueueExprUpdate (DefineReal_RelocUpdater, areaCurrentSymbol->area.info->curIdx,
 				     legal, &privData, sizeof (privData)))
 	    error (ErrorError, "Illegal %s expression", mnemonic);
 	}
@@ -491,8 +491,7 @@ c_get (void)
 	error (ErrorError, "Skipping extra characters '%s' after filename", cptr);
     }
 
-  FS_PushFilePObject (filename);
-  if (option_verbose)
+  if (!FS_PushFilePObject (filename) && option_verbose)
     fprintf (stderr, "Including file \"%s\" as \"%s\"\n", filename, gCurPObjP->name);
   return false;
 }
@@ -522,9 +521,8 @@ c_lnk (void)
   while (gCurPObjP->type == POType_eMacro)
     FS_PopPObject (true);
   FS_PopPObject (true);
-  
-  FS_PushFilePObject (filename);
-  if (option_verbose)
+
+  if (!FS_PushFilePObject (filename) && option_verbose)
     fprintf (stderr, "Linking to file \"%s\" as \"%s\"\n", filename, gCurPObjP->name);
   return false;
 }
@@ -650,10 +648,14 @@ c_info (void)
       return false;
     }
 
-  if (giveErr)
-    error (ErrorError, "%.*s", (int)message->Data.String.len, message->Data.String.s);
-  else
-    printf ("%.*s\n", (int)message->Data.String.len, message->Data.String.s);
+  /* Give output during pass one.  */
+  if (gASM_Phase == ePassOne)
+    {
+      if (giveErr)
+	error (ErrorError, "%.*s", (int)message->Data.String.len, message->Data.String.s);
+      else
+	printf ("%.*s\n", (int)message->Data.String.len, message->Data.String.s);
+    }
   return false;
 }
 
