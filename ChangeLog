@@ -1,3 +1,72 @@
+Sat Sep 24 14:02:06 CEST 2011  John Tytgat  <John.Tytgat@aaug.net>
+
+	* rname.c, rname.h, rname2.h: Remove.
+	* filename.c, filename.h: Add.
+	* Makefile.am: Follow rname.c, rname.h, rname2.h removal and
+	filename.c, filename.h addition.
+	* riscos_c.c (__riscosify_control): Don't do any filename processing
+	in UnixLib (when used).
+	* output.c (outputInit): Use FN_AnyToNative.
+	(outputAof, outputElf): Add verbose message.
+	* include.c (Input_Get,Input_Open): Use FN_AnyToNative.
+	* docs/asasm.txt: Add.
+
+Sun Sep 11 14:06:06 CEST 2011  John Tytgat  <John.Tytgat@aaug.net>
+
+	* error.c (errorCore): PObject::name can't be NULL anymore.
+	* filestack.c (ReportFSStack, FS_GetCurFileName): Likewise.
+
+Sun Sep 11 14:01:08 CEST 2011  John Tytgat  <John.Tytgat@aaug.net>
+
+	* error.c (no_errors, no_warnings, ThrowbackStarted): Rename to
+	oNumErrors, oNumWarnings, oThrowbackStarted.
+	(errorCore): Report error backtrace via throwback as well.
+
+Sun Sep 11 13:53:10 CEST 2011  John Tytgat  <John.Tytgat@aaug.net>
+
+	* riscos_c.c (OSCanonicalisePath): Make it static.
+	* os.h (OSCanonicalisePath): Remove prototype.
+
+Sun Sep 11 13:50:41 CEST 2011  John Tytgat  <John.Tytgat@aaug.net>
+
+	* macros.c (c_macro): Fix comment.
+	* main.c (main): Unbuffered stdout for DEBUG builds.
+
+Sun Sep 11 13:39:32 CEST 2011  John Tytgat  <John.Tytgat@aaug.net>
+
+	* lex.c (Lex_SkipDefiningLabel): Add.
+	* lex.h (Lex_SkipDefiningLabel): Likewise.
+	* whileif.c (if_skip, while_skip): Don't define local labels when
+	skipping if/while bodies.
+
+Sun Sep 11 13:33:06 CEST 2011  John Tytgat  <John.Tytgat@aaug.net>
+
+	* local.h (Local_CurROUTId): Remove.
+	(Local_GetCurROUTId, Local_DumpAll): Add.
+	* local.c: Likewise.
+	(Local_PrepareForPhase): Follow Local_CurROUTId removal and use
+	Local_GetCurROUTId.
+	(c_rout): Likewise.  Initialise routPos::next.
+	* lex.c (Lex_ReadLocalLabel, Lex_MakeLocalLabel,Lex_GetDefiningLabel):
+	Follow Local_CurROUTId removal and use Local_GetCurROUTId.
+
+Sun Sep 11 12:11:22 CEST 2011  John Tytgat  <John.Tytgat@aaug.net>
+
+	* filestack.c (FS_PushFilePObject): Add return value.
+	* filestack.h (FS_PushFilePObject): Likewise.
+	* commands.c (c_get, c_lnk): Check return value of
+	FS_PushFilePObject.
+	(c_info): Only report during phase one.
+
+Sun Sep 11 12:04:11 CEST 2011  John Tytgat  <John.Tytgat@aaug.net>
+
+	* symbol.c (Symbol_CreateSymbolOut): Update local label error.
+
+Sat Sep 10 10:51:37 CEST 2011  John Tytgat  <John.Tytgat@aaug.net>
+
+	* input.c (inputEnvSub): When cross-compiled, substitute $ into _
+	when initial environment variable retrieve didn't work.
+
 Sun Aug  7 18:39:49 CEST 2011  John Tytgat  <John.Tytgat@aaug.net>
 
 	* lexAcorn.c (lexAcornUnop, lexAcornBinop): Don't consume characters
