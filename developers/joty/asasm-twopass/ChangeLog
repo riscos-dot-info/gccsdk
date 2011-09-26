@@ -1,3 +1,68 @@
+Tue Sep 27 01:13:43 CEST 2011  John Tytgat  <John.Tytgat@aaug.net>
+
+	* input.c (inputGiveRestLine): Remove.
+	(inputNextLineNoSubst): Remove.
+	(inputArgSub): Rename to Input_ArgSub and give it a warnOnVarSubFail
+	parameter.
+	(inputNextLine): Rename to Input_NextLine and give it a warnOnVarSubFail
+	parameter.
+	(inputVarSub): Rename to Input_VarSub and give it a warnOnVarSubFail
+	parameter.
+	(inputNextLineCore): Rename to Input_NextLineCore.  Move END check
+	and FS_PopPObject call to ASM_GetLine.
+	* input.h (inputGiveRestLine, inputNextLineNoSubst): Remove declaration.
+	(inputNextLine): Rename to Input_NextLine.
+	(Level_e): Add.
+	* asm.c (ASM_GetLine): Add.
+	(ASM_DoPass): Call ASM_GetLine instead inputNextLine.
+	* whileif.c (if_skip): Drop onerror and *matchingToken parameters.
+	Replace inputNextLineNoSubst call by Input_NextLine (eVarSubstNoWarning).
+	No longer test on END. No longer report an error on end-of-data but
+	give an empty input line instead.
+	(while_skip): Apply recent if_skip fixes. Report labels being used
+	for WHILE/WEND.  Give an empty input line when WEND is missing.
+	(c_wend,FS_PopIfWhile): Enhance error messages.
+	* macros.c (c_macro): Replace inputNextLineNoSubst call by
+	Input_NextLine (eNoVarSubst).
+	* regression/tests_pass/if_else.s: Add test for verifying variable
+	expansion being done in skipped branch.
+	* regression/tests_pass/while.s: Add test for verifying variable
+	expansion being done when WHILE body gets skipped.
+
+Sun Sep 25 00:35:56 CEST 2011  John Tytgat  <John.Tytgat@aaug.net>
+
+	* decode.c (oDecodeTable): Mark the output of ALIGN as data.
+	* area.c, commands.c, symbol.c, symbol.h, put.c, lit.c:	Get rid of
+	SYMBOL_DECLARED.
+	* commands.c, symbol.c, put.c, code.c, decode.c, m_cpuctrl.c,
+	help_cop.c, local.c, m_cpumem.c, area.c, expr.c, output.c, asm.c,
+	lit.c: Have absolute base address in area symbol Symbol::value,
+	current area index value at Symbol::info.area::curIdx and size of
+	area at the end of pass one at Symbol::info.area::maxIdx.
+	* area.c (c_area, c_org): Make area symbol absolute when area is
+	absolute.
+	* area.h (AREA): Remove baseAddr, add curIdx and maxIdx.
+	(Area_GetBaseAddress): Add.
+	* code.c (Code_EvalLowest): Support absolute AREA symbols.
+	(Code_ExpandCurrAreaSymbolAsOffset): Make static.
+	* code.h (Code_ExpandCurrAreaSymbolAsOffset): Remove declaration.
+	* output.c (writeElfSH): Add addr parameter.
+	* regression/tests_pass/org.s: Added.
+	* regression/tests_pass/def.s: Added.
+
+Sat Sep 24 14:02:06 CEST 2011  John Tytgat  <John.Tytgat@aaug.net>
+
+	* rname.c, rname.h, rname2.h: Remove.
+	* filename.c, filename.h: Add.
+	* Makefile.am: Follow rname.c, rname.h, rname2.h removal and
+	filename.c, filename.h addition.
+	* riscos_c.c (__riscosify_control): Don't do any filename processing
+	in UnixLib (when used).
+	* output.c (outputInit): Use FN_AnyToNative.
+	(outputAof, outputElf): Add verbose message.
+	* include.c (Input_Get,Input_Open): Use FN_AnyToNative.
+	* docs/asasm.txt: Add.
+
 Sun Sep 11 14:06:06 CEST 2011  John Tytgat  <John.Tytgat@aaug.net>
 
 	* error.c (errorCore): PObject::name can't be NULL anymore.
