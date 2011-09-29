@@ -1,8 +1,8 @@
 /*
  * AS an assembler for ARM
- * Copyright (c) 1997 Darren Salt
- * Copyright (c) 2002-2011 GCCSDK Developers
- *
+ * Copyright (c) 1992 Niklas Röjemo
+ * Copyright (c) 2004-2011 GCCSDK Developers
+ * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -17,33 +17,33 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *
- * local.h
+ * variables.h
  */
 
-#ifndef local_header_included
-#define local_header_included
+#ifndef variables_header_included
+#define variables_header_included
 
 #include <stdbool.h>
 #include "lex.h"
+#include "symbol.h"
 
-/* Prefix of all internal AsAsm symbols.  */
-#define kIntLabelPrefix "$$AsAsm$$Int$$"
+/**
+ * Created for each local variable encountered in a macro as we need to restore
+ * it.
+ */
+typedef struct VarPos
+{
+  struct VarPos *next;
+  Symbol *symbolP; /**< Non-NULL when macro caller has this variable already defined.  */
+  Symbol symbol; /**< When symbolP is non-NULL, the previous symbol object.  */
+  char name[]; /**< NUL terminated symbol name.  */
+} VarPos;
 
-extern int Local_ROUTLblNo[1000];
+bool c_gbl (void);
+bool c_lcl (void);
+bool c_set (const Lex *);
 
-extern const char Local_IntLabelFormat[];
-
-void Local_PrepareForPhase (ASM_Phase_e phase);
-
-bool c_rout (const Lex *label);
-
-bool Local_ROUTIsEmpty (const char *routName);
-bool Local_IsLocalLabel (const char *);
-void Local_FindROUT (const char *rout, const char **file, int *lineno);
-const char *Local_GetCurROUTId (void);
-
-#ifdef DEBUG
-void Local_DumpAll (void);
-#endif
+void Var_RestoreLocals (const VarPos *);	/* called on macro exit */
+void Var_Define (const char *);
 
 #endif
