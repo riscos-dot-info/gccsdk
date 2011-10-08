@@ -394,7 +394,7 @@ Code_ExpandCurrAreaSymbolAsAddr (Value *value, ARMWord instrOffset)
 	Code_ExpandCurrAreaSymbolAsAddr (&value->Data.Code.c[i].Data.value, instrOffset);
 }  
 
-
+#if 0
 static void
 Code_ExpandCurrAreaSymbolAsOffset (Value *value, int offset)
 {
@@ -408,6 +408,7 @@ Code_ExpandCurrAreaSymbolAsOffset (Value *value, int offset)
       if (value->Data.Code.c[i].Tag == CodeValue)
 	Code_ExpandCurrAreaSymbolAsOffset (&value->Data.Code.c[i].Data.value, offset);
 }
+#endif
 
 static bool
 Code_HasNonAddOperator (int start, int end, const Code *code)
@@ -468,9 +469,9 @@ Code_EvalLowest (size_t size, const Code *program, const ARMWord *instrOffsetP,
 	{
 	  case CodeOperator:
 #ifdef DEBUG_CODE
-	    printf ("[Operator %s] ", OperatorAsStr (program[i].Data.op));
+	    printf ("[Operator %s] ", Lex_OperatorAsStr (program[i].Data.op));
 #endif
-	    if (isUnop (program[i].Data.op))
+	    if (IsUnop (program[i].Data.op))
 	      {
 		assert (spStart < *sp); /* At least one entry on the stack.  */
 		if (Stack[*sp - 1].Tag != CodeValue
@@ -983,10 +984,10 @@ codePrint (size_t size, const Code *program)
       switch (program[i].Tag)
 	{
 	  case CodeOperator:
-	    if (isUnop (program[i].Data.op))
-	      printf ("[%s] ", OperatorAsStr (program[i].Data.op));
+	    if (IsUnop (program[i].Data.op))
+	      printf ("[%s] ", Lex_OperatorAsStr (program[i].Data.op));
 	    else
-	      printf ("[%s] ", OperatorAsStr (program[i].Data.op));
+	      printf ("[%s] ", Lex_OperatorAsStr (program[i].Data.op));
 	    break;
 
 	  case CodeValue:

@@ -1,3 +1,128 @@
+Sat Oct  8 02:48:28 CEST 2011  John Tytgat  <John.Tytgat@aaug.net>
+
+	* regression/tests_pass/operator_precedence.s: Add.
+	* regression/tests_pass/operator_shift.s: Added :ASR: test.
+	* code.c (Code_EvalLowest,codePrint): Follow OperatorAsStr to
+	Lex_OperatorAsStr rename. Follow isUnop to IsUnop rename.
+	* expr.c (expr,exprBuild): Use kPrioOp_Min and kPrioOp_Max.
+	* lexAcorn.c: Use kPrioOp_* values.
+	(lexAcornBinop): Add support for :ASR:.
+	* eval.c (evalBinop): Add support for :LEOR: as Op_leor.
+	* lex.c (Pri): Remove.
+	Use kPrioOp_* values.
+	(OperatorAsStr): Rename to Lex_OperatorAsStr.  Follow Op_* reshuffle.
+	(lexPrint): Follow Lex00Label removal.
+	* lex.h (Operator): Reshuffle according to precedence.  Add Op_leor.
+	(kPrioOp_*): Define.
+	(isUnop): Rename to IsUnop and turns this into an inline.
+	(LexTag): Remove Lex00Label.
+	(Lex): Remove Label.
+
+Wed Oct  5 00:46:48 CEST 2011  John Tytgat  <John.Tytgat@aaug.net>
+
+	* local.h (kIntLabelPrefix): Move to...
+	* symbol.h: ...here.
+	* local.c (routPos, rout_null, routList, routListEnd): Rename to
+	RoutPos_t, oRout_Null, oRout_List, oRout_ListEnd.
+	(Local_ROUTLblNo): Remove.
+	(oLocal_LabelNum): Add.
+	(Local_ResetLabels): Add.
+	(Local_PrepareForPhase, c_rout): Make use of Local_ResetLabels.
+	(Local_GetLabel): Add.
+	* local.h (Local_Label_t, Local_GetLabel): Add.
+	(Local_ROUTLblNo): Remove.
+	* lex.c (Lex_ReadLocalLabel): Support bigger label numbers.
+	(Lex_GetDefiningLabel, Lex_MakeLocalLabel): Use Local_GetLabel.
+
+Tue Oct  4 21:42:10 CEST 2011  John Tytgat  <John.Tytgat@aaug.net>
+
+	* lit.c (Lit_RegisterInt): Fix Value free problem.
+
+Mon Oct  3 21:45:10 CEST 2011  John Tytgat  <John.Tytgat@aaug.net>
+  
+	* macros.h (MACRO_ARG_LIMIT): Increased to 18.
+	(MACRO_ARG0): Changed from 16 to 14.
+	(MACRO_ARG15): Removed.
+	* macros.C (Macro_GetLine): Follow MACRO_ARG15 removal.
+
+Fri Sep 30 01:56:17 CEST 2011  John Tytgat  <John.Tytgat@aaug.net>
+
+	* filestack.h (PObject::lastLineSize): Added.
+	* filestack.c (FS_GetLine): Update PObject::lastLineSize.
+	(FS_PushFilePObject): Initialise PObject::lastLineSize.
+	* macros.c (Macro_GetLine): Update PObject::lastLineSize.
+	(FS_PushMacroPObject): Initialise PObject::lastLineSize.
+	* whileif.c (if_skip, while_skip): Rename to If_Skip, While_Skip.
+	(While_Unwind): Remove.
+	(While_ReEvalAndDo): Renamed to While_Rewind.
+	(c_while, While_Rewind, c_wend, FS_PopIfWhile): Reparse WHILE input
+	line before re-evaluation.
+	* regression/tests_pass/while.s: Added test case.
+	* input.c (inputThisInstead): Rename to Input_ThisInstead.
+
+Thu Sep 29 22:01:10 CEST 2011  John Tytgat  <John.Tytgat@aaug.net>
+
+	* local.c (Local_ROUTLblNo): Support up to 1000 local labels.
+	* local.h (Local_ROUTLblNo): Likewise.
+	* lex.c (Lex_ReadLocalLabel): Likewise.
+	* variables.c (varPos): Rename to VarPos.
+	(varPos::symptr): Rename to VarPos::symbolP.
+	(varPos::symbol): Rename to VarPos::symbol.
+	(var_restoreLocals): Rename to Var_RestoreLocals.
+	(var_define): Rename to Var_Define.
+	* variables.h: Likewise.
+	* macros.c, macro.h: Follow variables.c/variables.h renames.
+	* main.c: Likewise.
+
+Thu Sep 29 21:21:50 CEST 2011  John Tytgat  <John.Tytgat@aaug.net>
+
+	* lexAcorn.c (lexAcornUnop, lexAcornBinop): Avoid inputUnGet error on
+	unknown operations.
+
+Tue Sep 27 23:42:27 CEST 2011  John Tytgat  <John.Tytgat@aaug.net>
+
+	* code.c (Code_ExpandCurrAreaSymbolAsOffset): Disabled.
+	* eval.c (GetInt): Added.
+	(evalBinop): Extend Op_mul, Op_div, Op_mod, Op_add, Op_sub, Op_and,
+	Op_or, Op_xor with support for one character long strings.
+	Simplified Op_asr, Op_sr, Op_sl, Op_ror, Op_rol by using GetInt.
+	Add restrict.
+	* eval.h (evalBinOp): Add restrict.
+	* regression/tests_pass/operator_multiplication.s: Enhanced.
+	* regression/tests_pass/operator_addition_logical.s: Likewise.
+	* Makefile.am (asasm_CFLAGS): Add -fstrict-aliasing -Wstrict-aliasing.
+
+Tue Sep 27 01:13:43 CEST 2011  John Tytgat  <John.Tytgat@aaug.net>
+
+	* input.c (inputGiveRestLine): Remove.
+	(inputNextLineNoSubst): Remove.
+	(inputArgSub): Rename to Input_ArgSub and give it a warnOnVarSubFail
+	parameter.
+	(inputNextLine): Rename to Input_NextLine and give it a warnOnVarSubFail
+	parameter.
+	(inputVarSub): Rename to Input_VarSub and give it a warnOnVarSubFail
+	parameter.
+	(inputNextLineCore): Rename to Input_NextLineCore.  Move END check
+	and FS_PopPObject call to ASM_GetLine.
+	* input.h (inputGiveRestLine, inputNextLineNoSubst): Remove declaration.
+	(inputNextLine): Rename to Input_NextLine.
+	(Level_e): Add.
+	* asm.c (ASM_GetLine): Add.
+	(ASM_DoPass): Call ASM_GetLine instead inputNextLine.
+	* whileif.c (if_skip): Drop onerror and *matchingToken parameters.
+	Replace inputNextLineNoSubst call by Input_NextLine (eVarSubstNoWarning).
+	No longer test on END. No longer report an error on end-of-data but
+	give an empty input line instead.
+	(while_skip): Apply recent if_skip fixes. Report labels being used
+	for WHILE/WEND.  Give an empty input line when WEND is missing.
+	(c_wend,FS_PopIfWhile): Enhance error messages.
+	* macros.c (c_macro): Replace inputNextLineNoSubst call by
+	Input_NextLine (eNoVarSubst).
+	* regression/tests_pass/if_else.s: Add test for verifying variable
+	expansion being done in skipped branch.
+	* regression/tests_pass/while.s: Add test for verifying variable
+	expansion being done when WHILE body gets skipped.
+
 Sun Sep 25 00:35:56 CEST 2011  John Tytgat  <John.Tytgat@aaug.net>
 
 	* decode.c (oDecodeTable): Mark the output of ALIGN as data.
