@@ -1,6 +1,6 @@
 Index: gcc/config/arm/arm.h
 ===================================================================
---- gcc/config/arm/arm.h	(revision 178892)
+--- gcc/config/arm/arm.h	(revision 180006)
 +++ gcc/config/arm/arm.h	(working copy)
 @@ -221,7 +221,7 @@
  				         : TARGET_TPCS_FRAME)
@@ -11,7 +11,7 @@ Index: gcc/config/arm/arm.h
  
  #define TARGET_HARD_TP			(target_thread_pointer == TP_CP15)
  #define TARGET_SOFT_TP			(target_thread_pointer == TP_SOFT)
-@@ -867,7 +867,11 @@
+@@ -872,7 +872,11 @@
     : THUMB_HARD_FRAME_POINTER_REGNUM)
  
  #define HARD_FRAME_POINTER_IS_FRAME_POINTER 0
@@ -23,7 +23,7 @@ Index: gcc/config/arm/arm.h
  
  #define FP_REGNUM	                HARD_FRAME_POINTER_REGNUM
  
-@@ -890,10 +894,18 @@
+@@ -895,10 +899,18 @@
    (((REGNUM) >= FIRST_IWMMXT_GR_REGNUM) && ((REGNUM) <= LAST_IWMMXT_GR_REGNUM))
  
  /* Base register for access to local variables of the function.  */
