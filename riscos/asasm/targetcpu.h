@@ -1,6 +1,6 @@
 /*
  * AS an assembler for ARM
- * Copyright (c) 2010 GCCSDK Developers
+ * Copyright (c) 2010-2012 GCCSDK Developers
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -47,11 +47,17 @@ typedef enum
   ARCH_ARMv6M,		/* Jazelle */
   ARCH_ARMv6T2,		/* Jazelle, Thumb-2, VFPv2 opt */
   ARCH_ARMv7,
-  ARCH_ARMv7A = ARCH_ARMv7,		/* Jazelle, Thumb-2EE, multiprocessor opt, VFPv3 opt, SIMD opt, security opt */
+  ARCH_ARMv7A = ARCH_ARMv7,		/* Jazelle, Thumb-2EE (Thumb-2 Execution Environment), multiprocessor opt, VFPv3 opt, SIMD opt, security opt */
   ARCH_ARMv7R,		/* Jazelle, Thumb-2EE, multiprocessor opt, VFPv3 opt, SIMD opt */
   ARCH_ARMv7EM,		/* Jazelle, Thumb-2EE */
   ARCH_ARMv7M		/* Jazelle, Thumb-2EE */
 } ARM_eArchitectures;
+
+typedef enum
+{
+  eFeature_Thumb,
+  eFeature_Thumb2
+} Arch_Feature_e;
 
 bool Target_NeedAtLeastArch (ARM_eArchitectures arch);
 
@@ -60,5 +66,7 @@ bool Target_SetCPU (const char *cpu);
 const char *Target_GetCPU (void);
 const char *Target_GetArchAsString (void);
 ARM_eArchitectures Target_GetArch (void);
+
+void Target_CheckFeature (Arch_Feature_e feature);
 
 #endif

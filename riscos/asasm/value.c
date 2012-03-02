@@ -1,7 +1,7 @@
 /*
  * AS an assembler for ARM
  * Copyright (c) 1992 Niklas Röjemo
- * Copyright (c) 2000-2010 GCCSDK Developers
+ * Copyright (c) 2000-2012 GCCSDK Developers
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -34,7 +34,6 @@
 #include "code.h"
 #include "error.h"
 #include "expr.h"
-#include "os.h"
 #include "main.h"
 #include "value.h"
 
@@ -119,6 +118,58 @@ Value_Code (size_t len, const Code *code)
   return value;
 }
 
+
+/**
+ * Resolve the defined value behind a ValueSymbol object.
+ * \return true When resolving failed.
+ */
+bool
+Value_ResolveSymbol (Value *valueP)
+{
+  /* Resolve all defined symbols and absolute area symbols.  */
+  /* FIXME: this can probably loop forever: label1 -> label2 -> label1 */
+  while (valueP->Tag == ValueSymbol /* Only replace symbols... */
+         && ((valueP->Data.Symbol.symbol->type & SYMBOL_DEFINED) != 0
+             || ((valueP->Data.Symbol.symbol->type & SYMBOL_AREA) != 0
+		 && (valueP->Data.Symbol.symbol->type & SYMBOL_ABSOLUTE) != 0)))
+    {
+      int offset = valueP->Data.Symbol.offset;
+      int factor = valueP->Data.Symbol.factor;
+      const Value *newValueP = &valueP->Data.Symbol.symbol->value;
+      switch (newValueP->Tag)
+	{
+	  case ValueBool:
+	  case ValueString:
+	    {
+	      if (factor != 1 || offset != 0)
+		return true;
+	      *valueP = *newValueP;
+	      break;
+	    }
+	  case ValueInt:
+	    *valueP = Value_Int (factor * newValueP->Data.Int.i + offset, eIntType_PureInt);
+	    break;
+	  case ValueFloat:
+	    *valueP = Value_Float (factor * newValueP->Data.Float.f + offset);
+	    break;
+	  case ValueAddr:
+	    {
+	      if (factor != 1)
+		return true;
+	      *valueP = Value_Addr (newValueP->Data.Addr.r, newValueP->Data.Addr.i + offset);
+	      break;
+	    }
+	  case ValueSymbol:
+	    *valueP = Value_Symbol (newValueP->Data.Symbol.symbol, factor * newValueP->Data.Symbol.factor, factor * newValueP->Data.Symbol.offset + offset);
+	    break;
+	  default:
+	    return true;
+	}
+    }
+  return false;
+}
+
+
 bool
 valueEqual (const Value *a, const Value *b)
 {
@@ -163,13 +214,14 @@ valueEqual (const Value *a, const Value *b)
 	break;
 
       case ValueInt:
+	/* FIXME? Check on Value::Data.Int.type ? */
 	result = (b->Tag == ValueInt && a->Data.Int.i == b->Data.Int.i)
-		   || (option_autocast && b->Tag == ValueFloat && (ARMFloat)a->Data.Int.i == b->Data.Float.f);
+		   || (b->Tag == ValueFloat && (ARMFloat)a->Data.Int.i == b->Data.Float.f);
 	break;
 
       case ValueFloat:
 	result = (b->Tag == ValueFloat && a->Data.Float.f == b->Data.Float.f)
-		   || (option_autocast && b->Tag == ValueInt && a->Data.Float.f == (ARMFloat)b->Data.Int.i);
+		   || (b->Tag == ValueInt && a->Data.Float.f == (ARMFloat)b->Data.Int.i);
 	break;
 
       case ValueString:
@@ -180,6 +232,12 @@ valueEqual (const Value *a, const Value *b)
 
       case ValueBool:
 	result = b->Tag == ValueBool && a->Data.Bool.b == b->Data.Bool.b;
+	break;
+
+      case ValueCode:
+	result = b->Tag == ValueCode
+		   && a->Data.Code.len == b->Data.Code.len
+		   && codeEqual (a->Data.Code.len, a->Data.Code.c, b->Data.Code.c);
 	break;
 
       case ValueAddr:
@@ -193,12 +251,6 @@ valueEqual (const Value *a, const Value *b)
 		   && a->Data.Symbol.factor == b->Data.Symbol.factor
 		   && a->Data.Symbol.symbol == b->Data.Symbol.symbol
 		   && a->Data.Symbol.offset == b->Data.Symbol.offset;
-	break;
-
-      case ValueCode:
-	result = b->Tag == ValueCode
-		   && a->Data.Code.len == b->Data.Code.len
-		   && codeEqual (a->Data.Code.len, a->Data.Code.c, b->Data.Code.c);
 	break;
 
       default:
@@ -225,7 +277,7 @@ valueTagAsString (ValueTag tag)
         str = "illegal";
         break;
       case ValueInt:
-        str = "integer";
+        str = "integer/register/coprocessornumber";
         break;
       case ValueFloat:
         str = "float";
@@ -266,8 +318,52 @@ valuePrint (const Value *v)
 	printf ("<illegal>");
 	break;
       case ValueInt:
-	printf ("Int <%d = 0x%x>", v->Data.Int.i, v->Data.Int.i);
-	break;
+	{
+	  if (v->Data.Int.type == eIntType_PureInt)
+	    printf ("Int <%d = 0x%x>", v->Data.Int.i, v->Data.Int.i);
+	  else
+	    {
+	      char type;
+	      bool isReg;
+	      switch (v->Data.Int.type)
+		{
+		  case eIntType_CPU:
+		    type = 'r';
+		    isReg = true;
+		    break;
+		  case eIntType_FPU:
+		    type = 'f';
+		    isReg = true;
+		    break;
+		  case eIntType_NeonQuadReg:
+		    type = 'q';
+		    isReg = true;
+		    break;
+		  case eIntType_NeonOrVFPDoubleReg:
+		    type = 'd';
+		    isReg = true;
+		    break;
+		  case eIntType_VFPSingleReg:
+		    type = 's';
+		    isReg = true;
+		    break;
+		  case eIntType_CoProReg:
+		    type = 'p';
+		    isReg = true;
+		    break;
+		  case eIntType_CoProNum:
+		    type = 'c';
+		    isReg = false;
+		    break;
+		  default:
+		    type = '?';
+		    isReg = true;
+		    break;
+		}
+	      printf ("%s %c%d", isReg ? "Reg" : "CoPro num ", type, v->Data.Int.i);
+	    }
+	  break;
+	}
       case ValueFloat:
 	printf ("Float <%g>", v->Data.Float.f);
 	break;

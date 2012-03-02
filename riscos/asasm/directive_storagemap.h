@@ -17,21 +17,20 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *
- * put.h
+ * directive_storagemap.h
  */
 
-#ifndef put_header_included
-#define put_header_included
+#ifndef directive_storagemap_header_included
+#define directive_storagemap_header_included
 
-#include "global.h"
+#include <stdbool.h>
 
-void Put_Data (unsigned size, ARMWord data);
-void Put_AlignDataWithOffset (uint32_t offset, unsigned size, ARMWord data,
-			      uint32_t times, bool alignBefore);
-void Put_FloatDataWithOffset (uint32_t offset, unsigned size, ARMFloat data, bool alignBefore);
-void Put_Ins (unsigned size, ARMWord ins);
-void Put_InsWithOffset (uint32_t offset, unsigned size, ARMWord data);
+#include "value.h"
+#include "symbol.h"
 
-ARMWord GetWord (uint32_t offset);
+const Value *StorageMap_Value (void);
+
+bool c_record (void);
+bool c_alloc (const Lex *lex);
 
 #endif

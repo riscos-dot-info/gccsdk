@@ -1,7 +1,7 @@
 /*
  * AS an assembler for ARM
  * Copyright (c) 1992 Niklas Röjemo
- * Copyright (c) 2004-2010 GCCSDK Developers
+ * Copyright (c) 2004-2012 GCCSDK Developers
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -45,6 +45,18 @@ typedef enum
   ValueAll       = 127		/* cheat */
 } ValueTag;
 
+typedef enum
+{
+  eIntType_PureInt,
+  eIntType_CPU,			/* r0 - r15, lr, pc : ARM CPU register.  */
+  eIntType_FPU,			/* f0 - f8 : FPE (FPA10/FPA11 and FPASC) register.  */
+  eIntType_NeonQuadReg,		/* q0 - q15 : NEON quadword registers.  */
+  eIntType_NeonOrVFPDoubleReg,	/* d0 - d31 : NEON doubleword registers, VFP double-precision registers.  */
+  eIntType_VFPSingleReg,	/* s0 - s31 : VFP single-precision registers.  */
+  eIntType_CoProReg,		/* p0 - p15 : Coprocessor register.  */
+  eIntType_CoProNum		/* c0 - c15 : Not really a register... */
+} IntType_e;
+
 typedef struct
 {
   ValueTag Tag;
@@ -53,6 +65,7 @@ typedef struct
       struct			/* ValueInt */
         {
           int i;		/* Must start identical with ValueAddr's i & ValueString's len.  */
+	  IntType_e type;
         } Int;
       struct			/* ValueFloat */
         {
@@ -87,12 +100,12 @@ typedef struct
 } Value;
 
 static inline Value
-Value_Int (int i)
+Value_Int (int i, IntType_e type)
 {
   const Value value =
     {
       .Tag = ValueInt,
-      .Data.Int.i = i
+      .Data.Int = { .i = i, .type = type }
     };
   return value;
 }
@@ -134,6 +147,7 @@ Value_Symbol (struct Symbol *symbol, int factor, int offset)
 
 void Value_Assign (Value *dst, const Value *src);
 void valueFree (Value *value);
+bool Value_ResolveSymbol (Value *valueP);
 bool valueEqual (const Value *a, const Value *b);
 const char *valueTagAsString (ValueTag tag);
 #ifdef DEBUG
