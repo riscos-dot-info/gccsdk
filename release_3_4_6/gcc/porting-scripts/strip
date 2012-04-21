@@ -1,6 +1,0 @@
-#!/bin/bash
-
-# Dummy strip for GCCSDK for AOF toolchain, since there is no equivalent
-echo "GCCSDK strip for '$@' doing nothing
-
-
