@@ -44,11 +44,7 @@
 #define MAP_ANONYMOUS 0x20
 #include <unistd.h>
 #else
-#ifdef IBCS_COMPATIBLE
-#include <ibcs/unistd.h>
-#else
 #include <linux/unistd.h>
-#endif
 #endif /* __riscos */
 #include "syscall.h"
 #ifdef USE_CACHE
@@ -149,8 +145,11 @@ int _dl_unmap_cache(void)
 unsigned int _dl_error_number;
 unsigned int _dl_internal_error_number;
 
-struct elf_resolve * _dl_load_shared_library(int secure,
-	struct elf_resolve * tpnt, char * full_libname) {
+struct elf_resolve *
+_dl_load_shared_library(struct elf_resolve * app_tpnt,
+			struct elf_resolve * tpnt,
+			char * full_libname)
+{
   char * pnt, *pnt1, *pnt2;
   struct elf_resolve *tpnt1 = NULL;
   char mylibname[2050];
@@ -172,7 +171,7 @@ struct elf_resolve * _dl_load_shared_library(int secure,
 
  /* If the filename has any '.', try it straight and leave it at that. */
   if (libname != full_libname) {
-    tpnt1 = _dl_load_elf_shared_library(secure, full_libname, 0);
+    tpnt1 = _dl_load_elf_shared_library(full_libname, 0);
     if (tpnt1)
       return tpnt1;
     goto goof;
@@ -203,7 +202,7 @@ struct elf_resolve * _dl_load_shared_library(int secure,
 	  pnt = libname;
 	  while(*pnt) *pnt2++  = *pnt++;
 	  *pnt2++ = 0;
-	  tpnt1 = _dl_load_elf_shared_library(secure, mylibname, 0);
+	  tpnt1 = _dl_load_elf_shared_library(mylibname, 0);
 	  if(tpnt1) return tpnt1;
 	  if(*pnt1 == ':') pnt1++;
 	}
@@ -228,7 +227,7 @@ struct elf_resolve * _dl_load_shared_library(int secure,
       pnt = libname;
       while(*pnt) *pnt2++  = *pnt++;
       *pnt2++ = 0;
-      tpnt1 = _dl_load_elf_shared_library(secure, mylibname, 0);
+      tpnt1 = _dl_load_elf_shared_library(mylibname, 0);
       if(tpnt1) return tpnt1;
       if(*pnt1 == ',' || *pnt1 == ';') pnt1++;
     }
@@ -253,39 +252,46 @@ struct elf_resolve * _dl_load_shared_library(int secure,
       if ((libent[i].flags == LIB_ELF ||
 	   libent[i].flags == LIB_ELF_LIBC5) &&
 	  _dl_strcmp(libname, strs+libent[i].sooffset) == 0 &&
-	  (tpnt1 = _dl_load_elf_shared_library(secure,strs+libent[i].liboffset, 0)))
+	  (tpnt1 = _dl_load_elf_shared_library(strs+libent[i].liboffset, 0)))
 	return tpnt1;
     }
   }
 #endif
 
-  /* Check in /usr/lib */
-#ifdef IBCS_COMPATIBLE
-  pnt1 = "/usr/i486-sysv4/lib/";
-#else
-/*  pnt1 = "/usr/lib/";*/
-  pnt1 = "SharedLibs:/lib/";
-#endif
-  pnt = mylibname;
-  while(*pnt1) *pnt++ = *pnt1++;
-  pnt1 = libname;
-  while(*pnt1) *pnt++ = *pnt1++;
-  *pnt++ = 0;
-  tpnt1 = _dl_load_elf_shared_library(secure, mylibname, 0);
-  if (tpnt1) return tpnt1;
+  /* Check in /SharedLibs:/lib/<ABI version>/ */
+  pnt1 = "/SharedLibs:/lib/";
 
-#ifndef IBCS_COMPATIBLE
-  /* Check in /lib */
-  /* try "/lib/". */
-  pnt1 = "";
+  /* Copy the root name.  */
   pnt = mylibname;
   while(*pnt1) *pnt++ = *pnt1++;
+
+  /* Remember where the end of the root name is.  */
+  pnt2 = pnt; 
+
+  /* Copy abi version string of application.  */
+  if (app_tpnt->abi_version)
+  {
+    pnt1 = app_tpnt->abi_version;
+    while(*pnt1) *pnt++ = *pnt1++;
+
+    *pnt++ = '/';
+
+    /* Copy the name of the library.  */
+    pnt1 = libname;
+    while(*pnt1) *pnt++ = *pnt1++;
+    *pnt = '\0';
+
+    if ((tpnt1 = _dl_load_elf_shared_library(mylibname, 0)) != NULL)
+      return tpnt1;
+  }
+
+  /* Check in /SharedLibs:/lib/ */
   pnt1 = libname;
+  pnt = pnt2;
   while(*pnt1) *pnt++ = *pnt1++;
-  *pnt++ = 0;
-  tpnt1 = _dl_load_elf_shared_library(secure, mylibname, 0);
-  if (tpnt1) return tpnt1;
-#endif
+  *pnt = '\0';
+  if ((tpnt1 = _dl_load_elf_shared_library(mylibname, 0)) != NULL)
+    return tpnt1;
 
 goof:
   /* Well, we shot our wad on that one.  All we can do now is punt */
@@ -302,41 +308,42 @@ goof:
 
 //extern _elf_rtbndr(void);
 
-struct elf_resolve * _dl_load_elf_shared_library(int secure,
-        char * libname, int flag) {
+struct elf_resolve *
+_dl_load_elf_shared_library(char * libname, int flag)
+{
   Elf32_Ehdr * epnt;
   unsigned int dynamic_addr = 0;
   unsigned int dynamic_size = 0;
   Elf32_Dyn * dpnt;
   struct elf_resolve * tpnt;
   Elf32_Phdr * ppnt;
-  int dynamic_info[24];
+  unsigned int dynamic_info[24];
   int * lpnt;
   unsigned int libaddr;
-  unsigned int memsize = 0;
+  char *abi_version = NULL;
   int i;
 
   unsigned int handle;
   struct object_info objinfo;
+  int infile = -1;
 
   extern char *_dl_riscosify_dl(const char *name, int create_dir);
   libname = _dl_riscosify_dl(libname, 0);
 
+  libname = _dl_resolve_symlinks(libname);
+  if (!libname)
+    return NULL;
+
   /* If this file is already loaded for the current client , skip this step */
   tpnt = _dl_check_hashed_files(libname);
 
-  if(tpnt) return tpnt;
+  if(tpnt) 
+  {
+    _dl_som_free(libname);
+    return tpnt;
+  }
 
   handle = _dl_check_system_files(libname);
-
-  /* If we are in secure mode (i.e. a setu/gid binary using LD_PRELOAD),
-     we don't load the library if it isn't setuid. */
-
-/*  if (secure) {
-    struct stat st;
-    if (_dl_stat(libname, &st) || !(st.st_mode & S_ISUID))
-      return NULL;
-  }*/
 
   if (handle != 0)
   {
@@ -353,7 +360,7 @@ struct elf_resolve * _dl_load_elf_shared_library(int secure,
   else
   {
   char header[4096];
-  int infile;
+  unsigned int memsize = 0;
 
     libaddr = 0;
     infile = _dl_open(libname, O_RDONLY);
@@ -367,7 +374,7 @@ struct elf_resolve * _dl_load_elf_shared_library(int secure,
       _dl_fdprintf(2, "%s: can't open '%s'\n", _dl_progname, libname);
 #endif
       _dl_internal_error_number = DL_ERROR_NOFILE;
-      return NULL;
+      goto null_exit;
     }
 
     _dl_read(infile, header, sizeof(header));
@@ -379,8 +386,7 @@ struct elf_resolve * _dl_load_elf_shared_library(int secure,
     {
       _dl_fdprintf(2, "%s: '%s' is not an ELF file\n", _dl_progname, libname);
       _dl_internal_error_number = DL_ERROR_NOTELF;
-      _dl_close(infile);
-      return NULL;
+      goto null_exit;
     }
 
     if((epnt->e_type != ET_DYN) ||
@@ -393,8 +399,7 @@ struct elf_resolve * _dl_load_elf_shared_library(int secure,
       _dl_internal_error_number = (epnt->e_type != ET_DYN ? DL_ERROR_NOTDYN : DL_ERROR_NOTMAGIC);
       _dl_fdprintf(2, "%s: '%s' is not an ELF executable for " ELF_TARGET "\n",
 		 _dl_progname, libname);
-      _dl_close(infile);
-      return NULL;
+      goto null_exit;
     }
 
     ppnt = (Elf32_Phdr *) &header[epnt->e_phoff];
@@ -417,14 +422,8 @@ struct elf_resolve * _dl_load_elf_shared_library(int secure,
       else if (ppnt->p_type == PT_LOAD)
       {
         /* We use the file size because the bss section will not be used in the library's copy */
-        /*
-          NB. Until we can be sure that the library bss section will never be used, we'll have to
-          allocate memory for it, otherwise, nasty crashes occur.
-        */
-//        memsize += ppnt->p_filesz;
-//        memsize += ppnt->p_memsz;
-        if (ppnt->p_vaddr + ppnt->p_memsz > memsize)
-          memsize = ppnt->p_vaddr + ppnt->p_memsz;
+        if (ppnt->p_vaddr + ppnt->p_filesz > memsize)
+          memsize = ppnt->p_vaddr + ppnt->p_filesz;
       }
 
       ppnt++;
@@ -434,8 +433,7 @@ struct elf_resolve * _dl_load_elf_shared_library(int secure,
     if (!libaddr)
     {
       _dl_fdprintf(2,"Unable to allocate memory for shared library\n");
-      _dl_close(infile);
-      return NULL;
+      goto null_exit;
     }
 
     objinfo.base_addr = (char *)libaddr;
@@ -459,7 +457,7 @@ struct elf_resolve * _dl_load_elf_shared_library(int secure,
 	      _dl_read(infile, objinfo.public_rw_ptr, ppnt->p_filesz))
 	  {
 	    _dl_fdprintf(2,"Failed to read library data segment\n\r");
-	    return NULL;
+	    goto null_exit;
 	  }
         }
         else
@@ -468,7 +466,7 @@ struct elf_resolve * _dl_load_elf_shared_library(int secure,
               _dl_read(infile, (char *)(libaddr + ppnt->p_vaddr), ppnt->p_filesz))
           {
             _dl_fdprintf(2,"Failed to read library code segment\n\r");
-            return NULL;
+	    goto null_exit;
           }
         }
       }
@@ -476,6 +474,7 @@ struct elf_resolve * _dl_load_elf_shared_library(int secure,
     }
 
     _dl_close(infile);
+    infile = -1;
 
     dynamic_addr += (unsigned int) libaddr;
 
@@ -495,7 +494,7 @@ struct elf_resolve * _dl_load_elf_shared_library(int secure,
     {
       _dl_internal_error_number = DL_ERROR_NODYNAMIC;
       _dl_fdprintf(2, "%s: '%s' is missing a dynamic section\n", _dl_progname, libname);
-      return NULL;
+      goto null_exit;
     }
 
     dpnt = (Elf32_Dyn *) dynamic_addr;
@@ -505,6 +504,8 @@ struct elf_resolve * _dl_load_elf_shared_library(int secure,
     _dl_memset(dynamic_info, 0, sizeof(dynamic_info));
     for(i=0; i< dynamic_size; i++)
     {
+      if (dpnt->d_tag == DT_RISCOS_ABI_VERSION)
+	abi_version = (char *)(dpnt->d_un.d_ptr + libaddr);
       if( dpnt->d_tag > DT_JMPREL ) {dpnt++; continue; }
       dynamic_info[dpnt->d_tag] = dpnt->d_un.d_val;
       if(dpnt->d_tag == DT_TEXTREL ||
@@ -517,6 +518,7 @@ struct elf_resolve * _dl_load_elf_shared_library(int secure,
 
     tpnt->ppnt = (Elf32_Phdr *) (tpnt->loadaddr + epnt->e_phoff);
     tpnt->n_phent = epnt->e_phnum;
+    tpnt->abi_version = abi_version;
 
     /* Scan for exception tables.  */
     {
@@ -559,7 +561,7 @@ struct elf_resolve * _dl_load_elf_shared_library(int secure,
        * the same data in the private copy.
        */
       if ((objinfo.private_rw_ptr = _dl_malloc(objinfo.rw_size)) == NULL)
-	return NULL;
+	goto null_exit;
 
       /* Register the library with the support module. During registration an object index
        * is written into the GOT. This index needs to be copied into the private version
@@ -592,10 +594,29 @@ struct elf_resolve * _dl_load_elf_shared_library(int secure,
   if (lpnt)
   {
     lpnt = (int *) (objinfo.private_rw_ptr + objinfo.got_offset);
-    INIT_GOT(lpnt, tpnt);
+     /* ABI v0.00 & v1.00 have 5 word GOTs with a zero at offset 3.
+        ABI v2.00 has a 3 word GOT, offset 3 will not be zero.  */
+    if (lpnt[3] == 0 &&
+        (tpnt->abi_version == NULL ||
+        _dl_strncmp (tpnt->abi_version, "abi-1.0", 7) == 0))
+    {
+      INIT_41_GOT (lpnt, tpnt)
+    }
+    else
+      INIT_GOT (lpnt, tpnt)
   }
 
+  _dl_som_free(libname);
+
   return tpnt;
+
+null_exit:
+  if (infile >= 0)
+    _dl_close(infile);
+
+  _dl_som_free(libname);
+
+  return NULL;
 }
 
 /* Ugly, ugly.  Some versions of the SVr4 linker fail to generate COPY

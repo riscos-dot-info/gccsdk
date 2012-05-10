@@ -1,7 +1,7 @@
 /*
  * AS an assembler for ARM
  * Copyright (c) 1992 Niklas Röjemo
- * Copyright (c) 2002-2010 GCCSDK Developers
+ * Copyright (c) 2002-2012 GCCSDK Developers
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -27,18 +27,18 @@
 
 #include "global.h"
 
-void outputInit (const char *outfile);
-void outputFinish (void);
-void outputRemove (void);
+void Output_Init (const char *outfile);
+void Output_Finish (void);
+void Output_Remove (void);
 
-void outputAof (void);
-void outputElf (void);
+void Output_AOF (void);
+void Output_ELF (void);
 
 extern const char *idfn_text;
 #ifdef NO_ELF_SUPPORT
-#  define DEFAULT_IDFN "GCCSDK ASASM AOF Assembler " VERSION " (r" GCCSDK_REVISION ", " __DATE__ ")"
+#  define DEFAULT_IDFN "GCCSDK ASASM AOF Assembler " VERSION " (" GCCSDK_REVISION ", " __DATE__ ")"
 #else
-#  define DEFAULT_IDFN "GCCSDK ASASM AOF/ELF Assembler " VERSION " (r" GCCSDK_REVISION ", " __DATE__ ")"
+#  define DEFAULT_IDFN "GCCSDK ASASM AOF/ELF Assembler " VERSION " (" GCCSDK_REVISION ", " __DATE__ ")"
 #endif
 
 #if defined(WORDS_BIGENDIAN)

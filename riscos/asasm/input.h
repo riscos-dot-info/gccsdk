@@ -1,7 +1,7 @@
 /*
  * AS an assembler for ARM
  * Copyright (c) 1992 Niklas Röjemo
- * Copyright (c) 2001-2011 GCCSDK Developers
+ * Copyright (c) 2001-2012 GCCSDK Developers
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -30,14 +30,15 @@
 #include "global.h"
 #include "macros.h"
 
-#define MAX_PREDEFINES 10
-extern const char *predefines[MAX_PREDEFINES];
-extern int num_predefines;
+void Input_PrepareForPhase (Phase_e phase);
+
+bool Input_AddPredefine (const char *preDef);
 
 bool Input_Match (char c, bool spacesToo);
 bool Input_MatchKeyword (const char *keyword);
 bool Input_MatchKeywordLower (const char *keyword);
 bool Input_MatchString (const char *str);
+bool Input_MatchStringLower (const char *str);
 bool Input_IsEndOfKeyword (void);
 
 typedef enum
@@ -59,7 +60,6 @@ char inputLookNLower (int n);
 char inputGet (void);
 char inputGetLower (void);
 void inputUnGet (char c);
-char inputSkipLook (void);
 const char *Input_Rest (void);
 #if DEBUG
 const char *inputLine (void);
@@ -69,7 +69,6 @@ void inputSkipN (int n);
 
 char *Input_GetString (size_t *len);
 
-const char *Input_LocalLabel (size_t *ilen);
 const char *Input_Symbol (size_t *ilen);
 const char *inputSymbol (size_t *ilen, char del);
 

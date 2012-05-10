@@ -1,7 +1,7 @@
 /*
  * AS an assembler for ARM
  * Copyright (c) 1997 Darren Salt
- * Copyright (c) 2000-2011 GCCSDK Developers
+ * Copyright (c) 2000-2012 GCCSDK Developers
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -47,7 +47,6 @@
 #include "macros.h"
 #include "main.h"
 #include "output.h"
-#include "os.h"
 #include "put.h"
 #include "symbol.h"
 #include "value.h"
@@ -57,9 +56,82 @@
 //#  define DEBUG_VARIABLES
 #endif
 
-static void
-assign_var (Symbol *sym, ValueTag type)
+/**
+ * Variables phase preparation.
+ */
+void
+Var_PrepareForPhase (Phase_e phase)
 {
+  switch (phase)
+    {
+      case ePassTwo:
+	/* Delete all variables so that a :DEF: test returns the same
+	   result as in ePassOne.  */
+	Symbol_RemoveVariables ();
+	break;
+
+      default:
+	break;
+    }
+}
+
+
+/**
+ * (Re)define local or global variable.
+ * When variable exists we'll give a pedantic warning when its type is the same,
+ * when type is different an error is given instead.
+ * \param localMacro Is true when variable is a local macro variable. Used to
+ * implement :DEF:.
+ */
+static Symbol *
+Var_Declare (const char *ptr, size_t len, ValueTag type, bool localMacro)
+{
+  const Lex var = lexTempLabel (ptr, len);
+  Symbol *sym = Symbol_Find (&var); /* FIXME: use Symbol_Get() and get rid of 'else' */
+  if (sym != NULL)
+    {
+      if (sym->type & SYMBOL_AREA)
+	{
+	  error (ErrorError, "'%.*s' is already defined as an area",
+		 (int)len, ptr);
+	  return NULL;
+	}
+      /* A local variable can have a different type than a similar named
+	 global variable.  */
+      /* FIXME: this is not 100% bullet proof: a local variable with same
+	 name as global one will not get SYMBOL_MACRO_LOCAL bit so remains
+	 local.  So we won't detect two different type local variables (with
+	 same name) when we have a global variable also with same name).  */
+      if (sym->value.Tag != type
+          && (!localMacro || (sym->type & SYMBOL_MACRO_LOCAL) != 0))
+	{
+	  if (sym->value.Tag == ValueIllegal)
+	    error (ErrorError, "'%.*s' is already %s",
+		   (int)len, ptr,
+		   sym->type & SYMBOL_DEFINED ? "defined" : "declared");
+	  else
+	    error (ErrorError, "'%.*s' is already %s as a %s",
+		   (int)len, ptr,
+		   sym->type & SYMBOL_DEFINED ? "defined" : "declared",
+		   valueTagAsString (sym->value.Tag));
+	  return NULL;
+	}
+      if (option_pedantic)
+	error (ErrorWarning, "Redeclaration of %s variable '%.*s'",
+	       valueTagAsString (sym->value.Tag),
+	       (int)var.Data.Id.len, var.Data.Id.str);
+
+      /* When symbol is already known as global, it remains a global variable
+	 (and :DEF: returns {TRUE} for it).  */
+      localMacro = false;
+    }
+  else
+    sym = Symbol_Get (&var);
+
+  sym->type |= SYMBOL_DEFINED | SYMBOL_ABSOLUTE | SYMBOL_RW;
+  if (localMacro)
+    sym->type |= SYMBOL_MACRO_LOCAL;
+
   sym->value.Tag = type;
   switch (type)
     {
@@ -79,63 +151,10 @@ assign_var (Symbol *sym, ValueTag type)
 	break;
 
       default:
-	error (ErrorAbort, "Internal error: assign_var");
+	assert (0);
 	break;
     }
-}
 
-
-/**
- * (Re)define local or global variable.
- * When variable exists we'll give a pedantic warning when its type is the same,
- * when type is different an error is given instead.
- * \param localMacro Is true when variable is a local macro variable. Used to
- * implement :DEF:.
- */
-static Symbol *
-declare_var (const char *ptr, size_t len, ValueTag type, bool localMacro)
-{
-  const Lex var = lexTempLabel (ptr, len);
-  Symbol *sym = symbolFind (&var);
-  if (sym != NULL)
-    {
-      if (sym->type & SYMBOL_AREA)
-	{
-	  error (ErrorError, "'%.*s' is already defined as an area",
-		 (int)len, ptr);
-	  return NULL;
-	}
-      /* A local variable can have a different type than a similar named
-	 global variable.  */
-      /* FIXME: this is not 100% bullet proof: a local variable with same
-	 name as global one will not get SYMBOL_MACRO_LOCAL bit so remains
-	 local.  So we won't detect two differnt type local variables (with
-	 same name) when we have a global variable also with same name).  */
-      if (sym->value.Tag != type
-          && (!localMacro || (sym->type & SYMBOL_MACRO_LOCAL) != 0))
-	{
-	  error (ErrorError, "'%.*s' is already %s as a %s",
-		 (int)len, ptr,
-		 sym->type & SYMBOL_DEFINED ? "defined" : "declared",
-		 valueTagAsString (sym->value.Tag));
-	  return NULL;
-	}
-      if (option_pedantic)
-	error (ErrorWarning, "Redeclaration of %s variable '%.*s'",
-	       valueTagAsString (sym->value.Tag),
-	       (int)var.Data.Id.len, var.Data.Id.str);
-
-      /* When symbol is already known as global, it remains a global variable
-	 (and :DEF: returns {TRUE} for it).  */
-      localMacro = false;
-    }
-  else
-    sym = symbolGet (&var);
-
-  sym->type |= SYMBOL_DEFINED | SYMBOL_ABSOLUTE | SYMBOL_RW;
-  if (localMacro)
-    sym->type |= SYMBOL_MACRO_LOCAL;
-  assign_var (sym, type);
   return sym;
 }
 
@@ -148,23 +167,15 @@ bool
 c_gbl (void)
 {
   ValueTag type;
-  switch (inputLook ())
-    {
-      case 'L':
-	type = ValueBool;
-        break;
-
-      case 'A':
-	type = ValueInt;
-	break;
-
-      case 'S':
-	type = ValueString;
-	break;
-
-      default:
-	return true;
-    }
+  const char c  = inputLook ();
+  if (c == 'L')
+    type = ValueBool;
+  else if (c == 'A')
+    type = ValueInt;
+  else if (c == 'S')
+    type = ValueString;
+  else
+    return true;
   inputSkip ();
   if (!Input_IsEndOfKeyword ())
     return true;
@@ -175,7 +186,7 @@ c_gbl (void)
   if ((ptr = Input_Symbol (&len)) == NULL)
     error (ErrorError, "Missing variable name");
   else
-    declare_var (ptr, len, type, false);
+    Var_Declare (ptr, len, type, false);
   return false;
 }
 
@@ -188,23 +199,15 @@ bool
 c_lcl (void)
 {
   ValueTag type;
-  switch (inputLook ())
-    {
-      case 'L':
-	type = ValueBool;
-        break;
-
-      case 'A':
-	type = ValueInt;
-	break;
-
-      case 'S':
-	type = ValueString;
-	break;
-
-      default:
-	return true;
-    }
+  const char c  = inputLook ();
+  if (c == 'L')
+    type = ValueBool;
+  else if (c == 'A')
+    type = ValueInt;
+  else if (c == 'S')
+    type = ValueString;
+  else
+    return true;
   inputSkip ();
   if (!Input_IsEndOfKeyword ())
     return true;
@@ -227,7 +230,7 @@ c_lcl (void)
   /* Link our local variable into the current macro so we can restore this
      at the end of macro invocation.  */
   const Lex l = lexTempLabel (ptr, len);
-  Symbol *symbolP = symbolFind (&l);
+  Symbol *symbolP = Symbol_Find (&l);
 
   bool doRestore;
   if (symbolP != NULL)
@@ -251,11 +254,16 @@ c_lcl (void)
       memcpy (p->name, ptr, len); p->name[len] = '\0';
       p->next = gCurPObjP->d.macro.varListP;
       if ((p->symbolP = symbolP) != NULL)
-	p->symbol = *symbolP;
+	{
+	  p->symbol = *symbolP;
+	  /* Reset Symbol parts which won't get touched by Var_Declare().  */
+	  symbolP->codeSize = 0;
+	  symbolP->areaDef = areaCurrentSymbol;
+	}
       gCurPObjP->d.macro.varListP = p;
     }
   
-  declare_var (ptr, len, type, true);
+  Var_Declare (ptr, len, type, true);
   return false;
 }
 
@@ -268,35 +276,26 @@ bool
 c_set (const Lex *label)
 {
   ValueTag type;
-  switch (inputLook ())
-    {
-      case 'L':
-	type = ValueBool;
-        break;
-
-      case 'A':
-	type = ValueInt;
-	break;
-
-      case 'S':
-	type = ValueString;
-	break;
-
-      default:
-	return true;
-    }
+  const char c  = inputLook ();
+  if (c == 'L')
+    type = ValueBool;
+  else if (c == 'A')
+    type = ValueInt;
+  else if (c == 'S')
+    type = ValueString;
+  else
+    return true;
   inputSkip ();
   if (!Input_IsEndOfKeyword ())
     return true;
 
-  Symbol *sym = symbolFind (label);
+  Symbol *sym = Symbol_Find (label);
   if (sym == NULL)
     {
       error (ErrorError, "'%.*s' is undefined",
 	     (int)label->Data.Id.len, label->Data.Id.str);
       return false;
     }
-  assert (sym->value.Tag != ValueIllegal);
   if (type != sym->value.Tag)
     {
       error (ErrorError, "Wrong type for symbol '%.*s'",
@@ -339,40 +338,11 @@ Var_RestoreLocals (const VarPos *p)
       else
 	{
 	  const Lex l = lexTempLabel (p->name, strlen (p->name));
-	  symbolRemove (&l);
+	  Symbol_Remove (&l);
 	}
 
       const VarPos *q = p->next;
       free ((void *)p);
       p = q;
     }
-}
-
-
-void
-Var_Define (const char *def)
-{
-  const char *i = strchr (def, '=');
-  size_t len = i != NULL ? (size_t)(i - def) : strlen (def);
-  Symbol *sym = declare_var (def, len, ValueString, false);
-  if (sym == NULL)
-    return;
-
-  size_t datLen;
-  if (i == NULL)
-    {
-      i = "";
-      datLen = 0;
-    }
-  else
-    {
-      ++i; /* Skip '=' */
-      datLen = strlen (i);
-    }
-  const Value value =
-    {
-      .Tag = ValueString,
-      .Data.String = { .len = datLen, .s = i }
-    };
-  Value_Assign (&sym->value, &value);
 }
