@@ -1,4 +1,5 @@
 /config.h.in
+/compile
 /autom4te.cache
 /missing
 /aclocal.m4
@@ -11,3 +12,4 @@
 /GNUmakefile.in
 /config.sub
 /ltmain.sh
+/ar-lib
