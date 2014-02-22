@@ -1,0 +1,12 @@
+# In-tree .gitignore contents start here
+*.diff
+*.exe
+*.ncb
+*.opt
+*.plg
+*.scc
+*.suo
+*.temp
+*.user
+Debug
+Release

@@ -1,0 +1,4 @@
+# In-tree .gitignore contents start here
+a.out
+*.temp
+*.diff
