@@ -1,0 +1,14 @@
+/config.h.in
+/compile
+/autom4te.cache
+/missing
+/aclocal.m4
+/ylwrap
+/install-sh
+/configure
+/depcomp
+/config.guess
+/GNUmakefile.in
+/config.sub
+/ltmain.sh
+/ar-lib
