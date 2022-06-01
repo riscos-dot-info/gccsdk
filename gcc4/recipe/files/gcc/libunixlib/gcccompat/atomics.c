@@ -400,7 +400,7 @@ SYNC_LOCK_TEST_SET(1,char)
 SYNC_LOCK_TEST_SET(2,short)
 SYNC_LOCK_TEST_SET(8,long long)
 
-#ifdef __ARM_EABI__
+#if defined(__ARM_EABI__) && defined(__ARM_ARCH) && (__ARM_ARCH >= 6)
 
 static int __cmpxchg (int oldval, int newval, volatile int *ptr)
 {
