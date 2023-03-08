@@ -352,8 +352,8 @@ __h_error:
 	CHGMODE	a1, USR_Mode	@ Back to USR mode now we have a stack
 
 #ifdef __ARM_EABI__
-	STMFD	sp!, {v1, v3}
-	ADD	fp, sp, #4
+	ANDS	v2, sp, #7		@ Align stack
+	SUBEQ	sp, sp, #4
 #else
 	ADR	v4, __h_error + 4*3	@ Point at handler name for backtrace
 	STMFD	sp!, {v1, v2, v3, v4}	@ Setup an APCS-32 stack frame so we
@@ -758,10 +758,9 @@ __h_cback_common:
 	SWINE	XOS_Byte		@ This calls our escape handler
 
 #ifdef __ARM_EABI__
-	LDR	a3, [sp, #14*4 + 4]	@ saved USR lr
-	LDR	a1, [sp, #11*4 + 4]	@ saved USR fp
-	STMFD	sp!, {a1, a3}		@ create signal frame
-	MOV	fp, sp			@ FIXME: check this with compiler output for similar function
+	MOV	a1, sp			@ a1 -> register save block
+	ANDS	v2, sp, #7
+	SUBNE	sp, sp, #4		@ align stack to 8 bytes
 #else
 	@ Create an APCS-32 compilant signal stack frame
 	ADR	a4, __h_cback + 4*3	@ point at handler name for backtrace
@@ -796,11 +795,12 @@ __h_cback_common:
 	STR	a1, [a3, #GBL_EXECUTING_SIGNALHANDLER]
 
 #ifdef __ARM_EABI__
-	ADD	a1, sp, #8	@ Skip signal frame (fp, lr)
+	TEQ	v2, #0
+	ADDNE	a1, sp, #4	@ Undo stack alignment
 #else
 	ADD	a1, sp, #16	@ Skip signal frame (fp, sp, lr, name ptr)
 #endif
-	ADD	sp, sp, #16+17*4
+	ADD	sp, sp, #17*4
 	SWI	XOS_EnterOS	@ We need to be in SVC mode so reenbling IRQs
 				@ is atomic with returning to USR mode,
 				@ otherwise USR sp could be overwitten by
