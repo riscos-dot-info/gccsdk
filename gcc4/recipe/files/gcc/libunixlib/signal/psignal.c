@@ -1,5 +1,5 @@
 /* psignal ()
- * Copyright (c) 2000-2006 UnixLib Developers
+ * Copyright (c) 2000-2023 UnixLib Developers
  */
 
 #include <stdio.h>
@@ -15,7 +15,7 @@ psignal (int sig, const char *s)
 {
   const char *colon;
 
-  if (s == NULL || s == '\0')
+  if (s == NULL || *s == '\0')
     s = colon = "";
   else
     colon = ": ";
