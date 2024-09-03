@@ -43,6 +43,8 @@ extern __sighandler_t signal (int __sig, __sighandler_t __handler) __THROW;
    success, non-zero on failure.  */
 extern int raise (int __sig) __THROW;
 
+#define sig_atomic_t __sig_atomic_t
+
 #ifndef __TARGET_SCL__
 
 /* Send signal 'sig' to process number 'pid'.  If pid is zero,
@@ -76,8 +78,6 @@ extern int sigsetmask (int __mask) __THROW;
 
    This function is a cancellation point.  */
 extern int sigpause (int __mask);
-
-#define sig_atomic_t __sig_atomic_t
 
 /* POSIX signal functions.  */
 
