@@ -1001,18 +1001,13 @@ string_src = \
 	string/strstr.c \
 	string/strtok.c \
 	string/swab.c \
-	string/_strcpy.s
-if ARM_EABI
-string_src += \
+	string/_strcpy.s \
 	string/_memcpymove-v7l.s \
 	string/_memset-v7l.s \
 	string/_strlen-v7l.s
-else
-string_src += \
 	string/_memcpy.s \
 	string/_memset.s \
 	string/_strlen.s
-endif
 endif
 string_src += \
 	string/memccpy.c \

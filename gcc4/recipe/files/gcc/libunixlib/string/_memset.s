@@ -9,6 +9,8 @@
 
         .align	5 @ For cache alignment of the code
 
+#if defined(__SOFTFP__) || (!defined(__VFP_FP__) && !defined(__ARM_NEON__))
+
 	.global	memset
 	.global	bzero
 
@@ -110,5 +112,7 @@ mset_unaligned:
 
 	.weak	memset
 	.weak	bzero
+
+#endif
 
 	.end

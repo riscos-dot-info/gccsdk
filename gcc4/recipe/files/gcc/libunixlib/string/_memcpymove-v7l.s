@@ -601,6 +601,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         .unreq  TMP
 .endm
 
+
+#if !defined(__SOFTFP__) && defined(__VFP_FP__) && defined(__ARM_NEON__)
+
 /*
  * void *memcpy(void * restrict s1, const void * restrict s2, size_t n);
  * On entry:
@@ -644,4 +647,10 @@ myfunc memmove
 .endfunc
 	DECLARE_FUNCTION memmove
 
+	.weak	memcpy
+	.weak	memmove
+	.weak	bcopy
 
+#endif
+
+	.end

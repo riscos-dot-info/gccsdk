@@ -13,6 +13,8 @@
 	@ using PLD which doesn't do anything on pre-armv6 architectures.
 .arch	armv6
 
+#if defined(__SOFTFP__) || (!defined(__VFP_FP__) && !defined(__ARM_NEON__))
+
 	.global	memcpy
 	.global	memmove
 	.global	bcopy
@@ -720,5 +722,7 @@ dcp1sh3:
 	.weak	memcpy
 	.weak	memmove
 	.weak	bcopy
+
+#endif
 
 	.end

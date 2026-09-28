@@ -41,6 +41,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     .altmacro
     .p2align 2
 
+#if !defined(__SOFTFP__) && defined(__VFP_FP__) && defined(__ARM_NEON__)
+
 myfunc bzero
         mov     a3,a2
         mov     a2,#0
@@ -126,3 +128,9 @@ myfunc memset
         .unreq  OFF
 .endfunc
 	DECLARE_FUNCTION memset
+
+	.weak	memset
+	.weak	bzero
+#endif
+
+	.end
