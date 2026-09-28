@@ -1017,6 +1017,7 @@ endif
 string_src += \
 	string/memccpy.c \
 	string/memchr.c \
+	string/mempcpy.c \
 	string/stpcpy.c \
 	string/stpncpy.c \
 	string/strdup.c \
@@ -1029,10 +1030,6 @@ string_src += \
 	string/strtok_r.c \
 	string/_ffs.s \
 	string/_ffsll.s
-if !ARM_EABI
-string_src += \
-	string/mempcpy.c
-endif
 # support for POSIX-1.2008 extended locales
 string_src += \
 	string/strcasecmp_l.c \

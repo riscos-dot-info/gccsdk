@@ -644,21 +644,4 @@ myfunc memmove
 .endfunc
 	DECLARE_FUNCTION memmove
 
-/*
- * void *mempcpy(void * restrict s1, const void * restrict s2, size_t n);
- * On entry:
- * a1 = pointer to destination
- * a2 = pointer to source
- * a3 = number of bytes to copy
- * On exit:
- * a1 = pointer to immediately after destination block
- */
 
-myfunc mempcpy
-.global __mempcpy
-__mempcpy:
-        push    {v1, lr}
-        mov     v1, a3
-        bl      1000b
-        add     a1, a1, v1
-        pop     {v1, pc}
