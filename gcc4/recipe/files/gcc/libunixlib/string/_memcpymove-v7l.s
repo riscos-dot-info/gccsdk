@@ -612,12 +612,17 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 .set prefetch_distance, 2
-        .global bcopy
-bcopy:
 myfunc memcpy
 1000:   memcpy  0
 .endfunc
         DECLARE_FUNCTION memcpy
+
+myfunc bcopy
+        mov     a4, a2
+        mov     a2, a1
+        mov     a1, a4
+        b       1000b
+.endfunc
         DECLARE_FUNCTION bcopy
 
 /*

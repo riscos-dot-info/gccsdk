@@ -41,6 +41,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     .altmacro
     .p2align 2
 
+myfunc bzero
+        mov     a3,a2
+        mov     a2,#0
+        b       1000f
+.endfunc
+	DECLARE_FUNCTION bzero
+
 /*
  *  void *memset(void *s, int c, size_t n);
  *  On entry:
@@ -55,6 +62,7 @@ myfunc memset
         N       .req    a3
         SI      .req    a4
         OFF     .req    ip
+1000:
         mov     SI, a1
         vdup.8  q0, a2
         cmp     N, #15+64
