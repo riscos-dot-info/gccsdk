@@ -51,14 +51,34 @@ jobs:
         MAKEFLAGS: -j
       run: $(pwd)/gcc4/build-world
 
-    - name: Package (with permissions)
-      run: tar -caf riscos-gccsdk-${{ matrix.triplet }}.tar.xz
+    - name: Package binaries (with permissions)
+      run: tar --owner=root:0 --group=root:0
+               -caf riscos-gccsdk-${{ matrix.triplet }}.tar.xz
                -C /
                opt/riscos-gccsdk
 
-    - name: Upload artifact
+    # This must be the last step that interacts with the source
+    # or install trees, as it deletes things from both during clean
+    - name: Package sources
+      run: |
+        make -C gcc4 -i clean
+        git archive -o riscos-gccsdk-${{ matrix.triplet }}-src.tar HEAD
+        tar --owner=root:0 --group=root:0 \
+            -rf riscos-gccsdk-${{ matrix.triplet }}-src.tar \
+            gcc4/gccsdk-params \
+            gcc4/srcdir.orig
+        xz riscos-gccsdk-${{ matrix.triplet }}-src.tar
+
+    - name: Upload binary artifact
       uses: actions/upload-artifact@v7
       with:
         name: riscos-gccsdk-${{ matrix.triplet }}
         path: riscos-gccsdk-${{ matrix.triplet }}.tar.xz
+        archive: false
+
+    - name: Upload source artifact
+      uses: actions/upload-artifact@v7
+      with:
+        name: riscos-gccsdk-${{ matrix.triplet }}-src
+        path: riscos-gccsdk-${{ matrix.triplet }}-src.tar.xz
         archive: false
