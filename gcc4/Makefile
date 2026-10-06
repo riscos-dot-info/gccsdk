@@ -640,26 +640,26 @@ src-gdb-copied: $(SRCORIGDIR)/gdb-$(GDB_VERSION).tar.bz2
 # Download autoconf source to be used to build binutils:
 $(SRCORIGDIR)/autoconf-$(AUTOCONF_FOR_BINUTILS_VERSION).tar.bz2:
 	-mkdir -p $(SRCORIGDIR)
-	cd $(SRCORIGDIR) && wget -c https://ftpmirror.gnu.org/autoconf/autoconf-$(AUTOCONF_FOR_BINUTILS_VERSION).tar.bz2
+	cd $(SRCORIGDIR) && wget -c https://mirrorservice.org/sites/ftp.gnu.org/gnu/autoconf/autoconf-$(AUTOCONF_FOR_BINUTILS_VERSION).tar.bz2
 	touch $@
 
 # Download automake source to be used to build binutils/autoconf-for-binutils:
 $(SRCORIGDIR)/automake-$(AUTOMAKE_FOR_BINUTILS_VERSION).tar.bz2:
 	-mkdir -p $(SRCORIGDIR)
-	cd $(SRCORIGDIR) && wget -c https://ftpmirror.gnu.org/automake/automake-$(AUTOMAKE_FOR_BINUTILS_VERSION).tar.bz2
+	cd $(SRCORIGDIR) && wget -c https://mirrorservice.org/sites/ftp.gnu.org/gnu/automake/automake-$(AUTOMAKE_FOR_BINUTILS_VERSION).tar.bz2
 	touch $@
 
 # Download libtool source to be used to build binutils/autoconf-for-binutils:
 $(SRCORIGDIR)/libtool-$(LIBTOOL_FOR_BINUTILS_VERSION).tar.gz:
 	-mkdir -p $(SRCORIGDIR)
-	cd $(SRCORIGDIR) && wget -c https://ftpmirror.gnu.org/libtool/libtool-$(LIBTOOL_FOR_BINUTILS_VERSION).tar.gz
+	cd $(SRCORIGDIR) && wget -c https://mirrorservice.org/sites/ftp.gnu.org/gnu/libtool/libtool-$(LIBTOOL_FOR_BINUTILS_VERSION).tar.gz
 	touch $@
 
 ifneq ($(AUTOCONF_FOR_BINUTILS_VERSION),$(AUTOCONF_FOR_GCC_VERSION))
 # Download autoconf source to be used to build gcc:
 $(SRCORIGDIR)/autoconf-$(AUTOCONF_FOR_GCC_VERSION).tar.bz2:
 	-mkdir -p $(SRCORIGDIR)
-	cd $(SRCORIGDIR) && wget -c https://ftpmirror.gnu.org/autoconf/autoconf-$(AUTOCONF_FOR_GCC_VERSION).tar.bz2
+	cd $(SRCORIGDIR) && wget -c https://mirrorservice.org/sites/ftp.gnu.org/gnu/autoconf/autoconf-$(AUTOCONF_FOR_GCC_VERSION).tar.bz2
 	touch $@
 endif
 
@@ -667,7 +667,7 @@ ifneq ($(AUTOMAKE_FOR_BINUTILS_VERSION),$(AUTOMAKE_FOR_GCC_VERSION))
 # Download automake source to be used to build gcc:
 $(SRCORIGDIR)/automake-$(AUTOMAKE_FOR_GCC_VERSION).tar.bz2:
 	-mkdir -p $(SRCORIGDIR)
-	cd $(SRCORIGDIR) && wget -c https://ftpmirror.gnu.org/automake/automake-$(AUTOMAKE_FOR_GCC_VERSION).tar.bz2
+	cd $(SRCORIGDIR) && wget -c https://mirrorservice.org/sites/ftp.gnu.org/ftp/automake/automake-$(AUTOMAKE_FOR_GCC_VERSION).tar.bz2
 	touch $@
 endif
 
@@ -675,14 +675,14 @@ ifneq ($(LIBTOOL_FOR_BINUTILS_VERSION),$(LIBTOOL_FOR_GCC_VERSION))
 # Download libtool source to be used to build gcc:
 $(SRCORIGDIR)/libtool-$(LIBTOOL_FOR_GCC_VERSION).tar.gz:
 	-mkdir -p $(SRCORIGDIR)
-	cd $(SRCORIGDIR) && wget -c https://ftpmirror.gnu.org/libtool/libtool-$(LIBTOOL_FOR_GCC_VERSION).tar.gz
+	cd $(SRCORIGDIR) && wget -c https://mirrorservice.org/sites/ftp.gnu.org/libtool/libtool-$(LIBTOOL_FOR_GCC_VERSION).tar.gz
 	touch $@
 endif
 
 # Download binutils source:
 $(SRCORIGDIR)/binutils-$(BINUTILS_VERSION).tar.bz2:
 	-mkdir -p $(SRCORIGDIR)
-	cd $(SRCORIGDIR) && wget -c https://ftpmirror.gnu.org/binutils/binutils-$(BINUTILS_VERSION).tar.bz2
+	cd $(SRCORIGDIR) && wget -c https://mirrorservice.org/sites/ftp.gnu.org/gnu/binutils/binutils-$(BINUTILS_VERSION).tar.bz2
 	touch $@
 
 ifeq "$(GCC_USE_SCM)" "yes"
@@ -695,44 +695,44 @@ else
 # Download gcc source:
 $(SRCORIGDIR)/gcc-$(GCC_VERSION).tar.bz2:
 	-mkdir -p $(SRCORIGDIR)
-	cd $(SRCORIGDIR) && wget -c https://ftpmirror.gnu.org/gcc/gcc-$(GCC_VERSION)/gcc-$(GCC_VERSION).tar.bz2
+	cd $(SRCORIGDIR) && wget -c https://mirrorservice.org/sites/ftp.gnu.org/gnu/gcc/gcc-$(GCC_VERSION)/gcc-$(GCC_VERSION).tar.bz2
 	touch $@
 endif
 
 # Download gmp source:
 $(SRCORIGDIR)/gmp-$(GMP_VERSION).tar.bz2:
 	-mkdir -p $(SRCORIGDIR)
-	cd $(SRCORIGDIR) && wget -c https://gmplib.org/download/gmp-$(GMP_VERSION)/gmp-$(GMP_VERSION).tar.bz2
+	cd $(SRCORIGDIR) && wget -c https://mirrorservice.org/sites/ftp.gnu.org/gnu/gmp/gmp-$(GMP_VERSION).tar.bz2
 	touch $@
 
 # Download mpc source:
 $(SRCORIGDIR)/mpc-$(MPC_VERSION).tar.gz:
 	-mkdir -p $(SRCORIGDIR)
-	cd $(SRCORIGDIR) && wget -c https://ftpmirror.gnu.org/mpc/mpc-$(MPC_VERSION).tar.gz
+	cd $(SRCORIGDIR) && wget -c https://mirrorservice.org/sites/ftp.gnu.org/gnu/mpc/mpc-$(MPC_VERSION).tar.gz
 	touch $@
 
 # Download mpfr source:
 $(SRCORIGDIR)/mpfr-$(MPFR_VERSION).tar.bz2:
 	-mkdir -p $(SRCORIGDIR)
-	cd $(SRCORIGDIR) && wget -c https://www.mpfr.org/mpfr-$(MPFR_VERSION)/mpfr-$(MPFR_VERSION).tar.bz2
+	cd $(SRCORIGDIR) && wget -c https://mirrorservice.org/sites/ftp.gnu.org/gnu/mpfr/mpfr-$(MPFR_VERSION).tar.bz2
 	touch $@
 
 # Download ppl source:
 $(SRCORIGDIR)/ppl-$(PPL_VERSION).tar.gz:
 	-mkdir -p $(SRCORIGDIR)
-	cd $(SRCORIGDIR) && wget -c https://www.bugseng.com/external/ppl/download/ftp/releases/$(PPL_VERSION)/ppl-$(PPL_VERSION).tar.gz
+	cd $(SRCORIGDIR) && wget -c https://support.bugseng.com/ppl/download/ftp/releases/$(PPL_VERSION)/ppl-$(PPL_VERSION).tar.gz
 	touch $@
 
 # Download CLooG source:
 $(SRCORIGDIR)/cloog-ppl-$(CLOOG_VERSION).tar.gz:
 	-mkdir -p $(SRCORIGDIR)
-	cd $(SRCORIGDIR) && wget -c ftp://gcc.gnu.org/pub/gcc/infrastructure/cloog-ppl-$(CLOOG_VERSION).tar.gz
+	cd $(SRCORIGDIR) && wget -c https://mirrorservice.org/sites/sourceware.org/pub/gcc/infrastructure/cloog-ppl-$(CLOOG_VERSION).tar.gz
 	touch $@
 
 # Download newlib source:
 $(SRCORIGDIR)/newlib-$(NEWLIB_VERSION).tar.gz:
 	-mkdir -p $(SRCORIGDIR)
-	cd $(SRCORIGDIR) && wget -c ftp://sources.redhat.com/pub/newlib/newlib-$(NEWLIB_VERSION).tar.gz
+	cd $(SRCORIGDIR) && wget -c https://mirrorservice.org/sites/sources.redhat.com/pub/newlib/newlib-$(NEWLIB_VERSION).tar.gz
 	touch $@
 
 # Download gdb source:
