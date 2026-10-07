@@ -36,6 +36,29 @@ create_empty_dir() {
   ( test ! -d $1 || rm -rf $1 ) && mkdir -p $1
 }
 
+export_tree() {
+  src=$1
+  dst=$2
+
+  if [ -d "$GCCSDK_ROOT/../.git" ] ; then
+    mkdir -p $dst
+    components=0
+    top=$(realpath $GCCSDK_ROOT/..)
+    spth="$src"
+    while true ; do
+      [ "$spth" = "$top" ] && break
+      components=$(( $components + 1 ))
+      spth=$(dirname "$spth")
+    done
+
+    pushd $top >/dev/null
+    git archive --format=tar HEAD "$src" | tar x -C "$dst" --exclude="*.git*" --strip-components=$components
+    popd >/dev/null
+  else
+    svn export -q --force "$src" "$dst"
+  fi
+}
+
 # Setup the default values which can be overruled by user options given:
 GCCSDK_BUILD_FORCED=false
 GCCSDK_BUILD_ISSTATIC=false
@@ -270,7 +293,7 @@ elif [ "$GCCSDK_BUILD_ACTION" == "riscos" ] ; then
     fi
 
     # Copy !SharedLibs skeleton + shared library files in the gcc build result:
-    svn export -q --force $GCCSDK_RISCOS/soloader/dist/\!SharedLibs $GCCSDK_RISCOS_DSOPREFIX
+    export_tree $GCCSDK_RISCOS/soloader/dist/\!SharedLibs $GCCSDK_RISCOS_DSOPREFIX
     mkdir -p $GCCSDK_RISCOS_DSOPREFIX/lib/$GCCSDK_RISCOS_ABI_VERSION
 
     install_shared_libraries "" ""
@@ -282,7 +305,9 @@ elif [ "$GCCSDK_BUILD_ACTION" == "riscos" ] ; then
   mkdir -p $GCCSDK_RISCOS_SYSTEMPREFIX/\!System/310/Modules $GCCSDK_RISCOS_SYSTEMPREFIX/\!System/400/Modules
 
   # *** Copy !System skeleton:
-  svn export -q --force $GCCSDK_RISCOS/dist/\!System $GCCSDK_RISCOS_SYSTEMPREFIX/\!System
+  if [ -d $GCCSDK_RISCOS/dist/\!System ] ; then
+    export_tree $GCCSDK_RISCOS/dist/\!System $GCCSDK_RISCOS_SYSTEMPREFIX/\!System
+  fi
 
   # *** ARMEABISupport module:
   #   1. Copy ARMEABISupport module from to !System:

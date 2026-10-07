@@ -94,12 +94,35 @@ remove_if_there() {
   done
 }
 
+export_tree() {
+  src=$1
+  dst=$2
+
+  if [ -d "$GCCSDK_ROOT/../.git" ] ; then
+    mkdir -p $dst
+    components=0
+    top=$(realpath $GCCSDK_ROOT/..)
+    spth="$src"
+    while true ; do
+      [ "$spth" = "$top" ] && break
+      components=$(( $components + 1 ))
+      spth=$(dirname "$spth")
+    done
+
+    pushd $top >/dev/null
+    git archive --format=tar HEAD "$src" | tar x -C "$dst" --exclude="*.git*" --strip-components=$components
+    popd >/dev/null
+  else
+    svn export -q --force "$src" "$dst"
+  fi
+}
+
 # Populates $GCCSDK_UNPACKED/Examples
 create_examples_tree() {
   create_empty_dir $GCCSDK_UNPACKED/Examples
 
   # Copy Examples:
-  svn export -q --force $GCCSDK_RISCOS/dist/Examples $GCCSDK_UNPACKED/Examples
+  export_tree $GCCSDK_RISCOS/dist/Examples $GCCSDK_UNPACKED/Examples
 
   do_suffix_swapping $GCCSDK_UNPACKED/Examples
 }
@@ -206,7 +229,7 @@ create_gcc_tree() {
   done
 
   # Copy !GCC skeleton:
-  svn export -q --force $GCCSDK_RISCOS/dist/\!GCC $GCCSDK_UNPACKED/\!GCC
+  export_tree $GCCSDK_RISCOS/dist/\!GCC $GCCSDK_UNPACKED/\!GCC
 
   # GCC & binutils documentation: we remove the info & man pages as they are not
   # really useful on RISC OS but create and use those HTML versions instead.
@@ -245,7 +268,7 @@ create_gcc_tree() {
   cp $GCCSDK_RISCOS/asasm/docs/{AIF-1989,AIF-1993,ALF-1989,ALF-1993,AOF-1989,AOF-2002,APCS,ASDTF} $GCCSDK_UNPACKED/\!GCC/docs/asasm
   # Copy CMunge documentation:
   remove_if_there $GCCSDK_UNPACKED/\!GCC/docs/cmunge
-  svn export -q --force $GCCSDK_RISCOS/cmunge/Docs $GCCSDK_UNPACKED/\!GCC/docs/cmunge
+  export_tree $GCCSDK_RISCOS/cmunge/Docs $GCCSDK_UNPACKED/\!GCC/docs/cmunge
   cp $GCCSDK_RISCOS/cmunge/GCCSDK-CHANGES $GCCSDK_UNPACKED/\!GCC/docs/cmunge
   # Copy drenderer documentation:
   create_empty_dir $GCCSDK_UNPACKED/\!GCC/docs/drenderer
@@ -258,7 +281,7 @@ create_gcc_tree() {
   cp $GCCSDK_RISCOS/ln/{ChangeLog,AUTHORS,COPYING,README} $GCCSDK_UNPACKED/\!GCC/docs/ln
   # Copy mkresfs documentation:
   remove_if_there $GCCSDK_UNPACKED/\!GCC/docs/mkresfs
-  svn export -q --force $GCCSDK_RISCOS/mkresfs/doc $GCCSDK_UNPACKED/\!GCC/docs/mkresfs
+  export_tree $GCCSDK_RISCOS/mkresfs/doc $GCCSDK_UNPACKED/\!GCC/docs/mkresfs
   cp $GCCSDK_RISCOS/mkresfs/{ChangeLog,AUTHORS,COPYING} $GCCSDK_UNPACKED/\!GCC/docs/mkresfs
   # Copy UnixLib documentation:
   create_empty_dir $GCCSDK_UNPACKED/\!GCC/docs/libunixlib
@@ -342,24 +365,35 @@ if $GCCSDK_DO_PKG ; then
 
   # CMunge source kit:
   remove_if_there $SKIT_CMUNGE_NAME
-  svn export -q --force $GCCSDK_RISCOS/cmunge $SKIT_CMUNGE_NAME
+  export_tree $GCCSDK_RISCOS/cmunge $GCCSDK_KITS/$SKIT_CMUNGE_NAME
   # Add GCCSDK patch file:
-  svn diff svn://svn.riscos.info/gccsdk/branches/CMungeImportBranch/cmunge svn://svn.riscos.info/gccsdk/trunk/gcc4/riscos/cmunge > $SKIT_CMUNGE_NAME/GCCSDK-DIFF
+  if [ -d "$GCCSDK_ROOT/../.git" ] ; then
+    git diff origin/CMungeImportBranch:cmunge HEAD:gcc4/riscos/cmunge > $SKIT_CMUNGE_NAME/GCCSDK-DIFF
+  else
+    svn diff svn://svn.riscos.info/gccsdk/branches/CMungeImportBranch/cmunge svn://svn.riscos.info/gccsdk/trunk/gcc4/riscos/cmunge > $SKIT_CMUNGE_NAME/GCCSDK-DIFF
+  fi
 
   # riscos tools source kit (everything without cmunge source):
   create_empty_dir $SKIT_RISCOS_NAME
-  cd $GCCSDK_RISCOS
-  for obj in `find . -maxdepth 1 -mindepth 1 -type d` ; do
+  for obj in `find $GCCSDK_RISCOS -maxdepth 1 -mindepth 1 -type d` ; do
     case "$obj" in
       *cmunge | *.svn)
         # Skip the CMunge sources, those are packed in a separate source kit
         # $SKIT_CMUNGE_NAME. Skip also the .svn directory.
         ;;
       *)
-        svn export -q --force $obj $GCCSDK_KITS/$SKIT_RISCOS_NAME/$obj
+        export_tree $obj $GCCSDK_KITS/$SKIT_RISCOS_NAME/$(basename $obj)
         ;;
     esac
   done
+  if [ -d "$GCCSDK_ROOT/../.git" ] ; then
+    # asasm requires special handling to resolve symlinks
+    export_tree $(readlink -e $GCCSDK_RISCOS/asasm) $GCCSDK_KITS/$SKIT_RISCOS_NAME/asasm
+    for obj in `find $GCCSDK_RISCOS/asasm/ -maxdepth 1 -mindepth 1 -type l` ; do
+      rm $GCCSDK_KITS/$SKIT_RISCOS_NAME/asasm/$(basename $obj)
+      export_tree $(readlink -e $obj) $GCCSDK_KITS/$SKIT_RISCOS_NAME/asasm/$(basename $obj)
+    done
+  fi
 
   cd $GCCSDK_KITS
   # Create from each binary and source directoy a zip file:
@@ -371,6 +405,6 @@ if $GCCSDK_DO_PKG ; then
 
   cd $GCCSDK_SRCDIR
   echo Creating $SKIT_GCC_NAME.tar.bz2
-  tar --exclude="*.svn*" -chjf $GCCSDK_KITS/$SKIT_GCC_NAME.tar.bz2 .
+  tar --exclude="*.svn*" --exclude="*.git*" -chjf $GCCSDK_KITS/$SKIT_GCC_NAME.tar.bz2 .
 fi
 
