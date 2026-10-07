@@ -1,0 +1,84 @@
+name: "Build"
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  cross:
+    name: "Build cross compiler (${{ matrix.triplet }})"
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        triplet:
+          - arm-unknown-riscos
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v5
+      with:
+        fetch-depth: 0
+
+    - name: Install dependencies
+      run: sudo apt-get update -qq &&
+           sudo apt-get install --no-install-recommends -y
+               autoconf
+               autogen
+               automake
+               bison
+               build-essential
+               flex
+               gperf
+               help2man
+               libtool
+               subversion
+               texinfo
+
+    - name: Create output directory
+      run: mkdir -p /opt/riscos-gccsdk/${{ matrix.triplet }}
+
+    # Unspeakable evil: bend the build-world script to our needs
+    - name: Create build parameters
+      env:
+        GCCSDK_ROOT: /opt/riscos-gccsdk/${{ matrix.triplet }}/foo
+      run: |
+        mkdir /opt/riscos-gccsdk/${{ matrix.triplet }}/foo
+        $(pwd)/gcc4/build-world || true
+        mv /opt/riscos-gccsdk/${{ matrix.triplet }}/foo/gccsdk-params gcc4/gccsdk-params
+        rmdir /opt/riscos-gccsdk/${{ matrix.triplet }}/foo
+
+    - name: Perform the build
+      env:
+        MAKEFLAGS: -j
+      run: $(pwd)/gcc4/build-world
+
+    - name: Package binaries (with permissions)
+      run: tar --owner=root:0 --group=root:0
+               -caf riscos-gccsdk-${{ matrix.triplet }}.tar.xz
+               -C /
+               opt/riscos-gccsdk
+
+    # This must be the last step that interacts with the source
+    # or install trees, as it deletes things from both during clean
+    - name: Package sources
+      run: |
+        make -C gcc4 -i clean
+        git archive -o riscos-gccsdk-${{ matrix.triplet }}-src.tar HEAD
+        tar --owner=root:0 --group=root:0 \
+            -rf riscos-gccsdk-${{ matrix.triplet }}-src.tar \
+            gcc4/gccsdk-params \
+            gcc4/srcdir.orig
+        xz riscos-gccsdk-${{ matrix.triplet }}-src.tar
+
+    - name: Upload binary artifact
+      uses: actions/upload-artifact@v7
+      with:
+        name: riscos-gccsdk-${{ matrix.triplet }}
+        path: riscos-gccsdk-${{ matrix.triplet }}.tar.xz
+        archive: false
+
+    - name: Upload source artifact
+      uses: actions/upload-artifact@v7
+      with:
+        name: riscos-gccsdk-${{ matrix.triplet }}-src
+        path: riscos-gccsdk-${{ matrix.triplet }}-src.tar.xz
+        archive: false
