@@ -30,6 +30,7 @@ jobs:
                gperf
                help2man
                libtool
+               rename
                subversion
                texinfo
 
@@ -46,7 +47,7 @@ jobs:
         mv /opt/riscos-gccsdk/${{ matrix.triplet }}/foo/gccsdk-params gcc4/gccsdk-params
         rmdir /opt/riscos-gccsdk/${{ matrix.triplet }}/foo
 
-    - name: Perform the build
+    - name: Build the cross toolchain
       env:
         MAKEFLAGS: -j
       run: $(pwd)/gcc4/build-world
@@ -56,6 +57,14 @@ jobs:
                -caf riscos-gccsdk-${{ matrix.triplet }}.tar.xz
                -C /
                opt/riscos-gccsdk
+
+    - name: Build the native RISC OS toolchain
+      run: make -C gcc4 ronative
+
+    - name: Build kits
+      run: |
+        $(pwd)/gcc4/create-gcckit -pkg
+        $(pwd)/gcc4/create-riscpkg
 
     # This must be the last step that interacts with the source
     # or install trees, as it deletes things from both during clean
@@ -82,3 +91,12 @@ jobs:
         name: riscos-gccsdk-${{ matrix.triplet }}-src
         path: riscos-gccsdk-${{ matrix.triplet }}-src.tar.xz
         archive: false
+
+    - name: Upload RISC OS binaries and sources
+      uses: actions/upload-artifact@v7
+      with:
+        name: riscos-gccsdk-${{ matrix.triplet }}-risc_os.zip
+        path: |
+          gcc4/release-area/kits/*.zip
+          gcc4/release-area/kits/*.tar.bz2
+          gcc4/release-area/riscpkg/*.zip
