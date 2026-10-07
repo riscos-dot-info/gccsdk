@@ -45,8 +45,12 @@ GCCSDK_MAINTAINER="GCCSDK mailing list <gcc@gccsdk.riscos.info>"
 
 ZIP=$GCCSDK_INSTALL_ENV/bin/zip
 if ! [ -f "$ZIP" ] ; then
-  echo Unable to create RISC OS Packages because of missing zip executable 1>&2
-  exit 1
+  if [ -f "/usr/bin/python3" ] && [ -x "$GCCSDK_ROOT/scripts/zip" ] ; then
+    ZIP=$GCCSDK_ROOT/scripts/zip
+  else
+    echo Unable to create RISC OS Packages because of missing zip executable 1>&2
+    exit 1
+  fi
 fi
 
 if ! [ -e $GCCSDK_UNPACKED ] ; then
