@@ -25,7 +25,7 @@ RPKG_ARMEABISUPPORT_NAME=ARMEABISupport
 RPKG_DRENDERER_NAME=DRenderer
 
 # Set versions
-. ./riscpkg-versions
+source $GCCSDK_ROOT/riscpkg-versions
 
 # Build files for packages
 GCCSDK_UNPACKED=$GCCSDK_RELEASE_AREA/kits
