@@ -400,7 +400,6 @@ if $GCCSDK_DO_PKG ; then
   for dir in `find . -maxdepth 1 -mindepth 1 -type d` ; do
      echo Creating $dir.zip
      cd $dir && $ZIP -, -9rq ../$dir.zip * && cd ..
-     rm -rf $dir
   done
 
   cd $GCCSDK_SRCDIR
