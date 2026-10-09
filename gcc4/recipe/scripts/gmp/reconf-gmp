@@ -1,0 +1,4 @@
+#!/bin/bash
+# Auto-generate 'gmp' as we've patched it.
+
+( autoconf )
