@@ -14,21 +14,28 @@
 	.protected __pthread_enable_ints
 	.global	__pthread_protect_unsafe
 
+#if __ARM_ARCH__ < 6
+	/* Modern gas objects to our runtime-conditional use of LDREX/STREX
+	 * in here. If we're building for pre-armv6 architectures, tell gas
+	 * that to allow armv6 instructions, but mark the resulting object
+	 * as armv4 compatible. */
+	.arch armv6
+	.object_arch armv4
+#endif
+
 @ Disable context switches by incrementing the semaphore
 @ May be called from USR or SVC mode
 	NAME	__pthread_disable_ints
 __pthread_disable_ints:
 	PIC_LOAD a2
 
-	LDR	a1, .L0				@ =__ul_global
- PICEQ "LDR	a1, [a2, a1]"
-	LDR	ip, [a1, #GBL_PTH_CALLEVERY_RMA]
-#ifdef __ARM_EABI__
+	LDR	a4, .L0				@ =__ul_global
+ PICEQ "LDR	a4, [a2, a4]"
+	LDR	ip, [a4, #GBL_PTH_CALLEVERY_RMA]
 	ADD	a1, ip, #PTHREAD_CALLEVERY_RMA_WORKSEMAPHORE
-#else
-	LDR	a4, [a1, #GBL_CPU_FLAGS]
-	ADD	a1, ip, #PTHREAD_CALLEVERY_RMA_WORKSEMAPHORE
-	TST	a4, #__CPUCAP_HAVE_SWP
+#if __ARM_ARCH__ < 6
+	LDR	a2, [a4, #GBL_CPU_FLAGS]
+	TST	a2, #__CPUCAP_HAVE_SWP
 	@ From this point onwards we will not be interrupted by the callback
 	BEQ	0f
 
@@ -93,11 +100,9 @@ __pthread_protect_unsafe:
 	LDR	a4, .L2				@ =__ul_global
  PICEQ "LDR	a4, [a1, a4]"
 	LDR	ip, [a4, #GBL_PTH_CALLEVERY_RMA]
-#ifdef __ARM_EABI__
 	ADD	a1, ip, #PTHREAD_CALLEVERY_RMA_WORKSEMAPHORE
-#else
+#if __ARM_ARCH__ < 6
 	LDR	a2, [a4, #GBL_CPU_FLAGS]
-	ADD	a1, ip, #PTHREAD_CALLEVERY_RMA_WORKSEMAPHORE
 	TST	a2, #__CPUCAP_HAVE_SWP
 	@ From this point onwards we cannot be interrupted by the callback
 	BEQ	0f

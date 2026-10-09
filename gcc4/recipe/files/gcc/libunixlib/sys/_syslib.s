@@ -49,6 +49,15 @@
 	.weak	__dynamic_da_max_size
 	.weak   __stack_size
 
+#if __ARM_ARCH__ < 6
+	/* Modern gas objects to our runtime-conditional use of LDREX/STREX
+	 * in here. If we're building for pre-armv6 architectures, tell gas
+	 * that to allow armv6 instructions, but mark the resulting object
+	 * as armv4 compatible. */
+	.arch armv6
+	.object_arch armv4
+#endif
+
 	@ RMEnsure the minimum version of the SharedUnixLibrary we need.
 	@ Now check System modules first as UnixLib package is deprecated.
 #if !defined(__SOFTFP__) && defined(__VFP_FP__)
@@ -1414,7 +1423,7 @@ __unixlib_fatal:
 	@ we go for a straight OS_Exit scenario.  Anything better we
 	@ can do ?
 	ADD	a3, a4, #GBL_PANIC_MODE
-#ifndef __ARM_EABI__
+#if __ARM_ARCH__ < 6
 	LDR	a2, [a4, #GBL_CPU_FLAGS]
 	TST	a2, #__CPUCAP_HAVE_SWP
 	BEQ	0f
