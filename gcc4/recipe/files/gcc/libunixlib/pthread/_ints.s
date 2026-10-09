@@ -14,7 +14,7 @@
 	.protected __pthread_enable_ints
 	.global	__pthread_protect_unsafe
 
-#if !defined(__ARM_ARCH) || (__ARM_ARCH__ < 6)
+#if __ARM_ARCH__ < 6
 	/* Modern gas objects to our runtime-conditional use of LDREX/STREX
 	 * in here. If we're building for pre-armv6 architectures, tell gas
 	 * that to allow armv6 instructions, but mark the resulting object
@@ -33,7 +33,7 @@ __pthread_disable_ints:
  PICEQ "LDR	a4, [a2, a4]"
 	LDR	ip, [a4, #GBL_PTH_CALLEVERY_RMA]
 	ADD	a1, ip, #PTHREAD_CALLEVERY_RMA_WORKSEMAPHORE
-#if !defined(__ARM_ARCH) || (__ARM_ARCH < 6)
+#if __ARM_ARCH__ < 6
 	LDR	a2, [a4, #GBL_CPU_FLAGS]
 	TST	a2, #__CPUCAP_HAVE_SWP
 	@ From this point onwards we will not be interrupted by the callback
@@ -101,7 +101,7 @@ __pthread_protect_unsafe:
  PICEQ "LDR	a4, [a1, a4]"
 	LDR	ip, [a4, #GBL_PTH_CALLEVERY_RMA]
 	ADD	a1, ip, #PTHREAD_CALLEVERY_RMA_WORKSEMAPHORE
-#if !defined(__ARM_ARCH) || (__ARM_ARCH < 6)
+#if __ARM_ARCH__ < 6
 	LDR	a2, [a4, #GBL_CPU_FLAGS]
 	TST	a2, #__CPUCAP_HAVE_SWP
 	@ From this point onwards we cannot be interrupted by the callback

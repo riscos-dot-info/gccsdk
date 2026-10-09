@@ -17,6 +17,7 @@
 #include <pthread.h>
 #include <stdint.h>
 #include <sys/cdefs.h>
+#include <internal/defines.h>
 
 /* These built-in functions perform the operation suggested by the name,
  * and return the value that had previously been in *ptr. That is,
@@ -400,7 +401,7 @@ SYNC_LOCK_TEST_SET(1,char)
 SYNC_LOCK_TEST_SET(2,short)
 SYNC_LOCK_TEST_SET(8,long long)
 
-#if defined(__ARM_ARCH) && (__ARM_ARCH >= 6)
+#if __ARM_ARCH__ >= 6
 
 static int __cmpxchg (int oldval, int newval, volatile int *ptr)
 {
