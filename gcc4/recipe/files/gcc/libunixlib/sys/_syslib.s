@@ -387,11 +387,12 @@ t07:
 	SWI	XOS_ReadVarVal	@ Read value of progname$HeapMax
 	BVS	t08
 	TEQ	v1, #1		@ Should be a number variable
-	LDREQ	v2, [sp], #4
+	LDREQ	v2, [sp]
 	MOVEQ	v2, v2, LSL#20	@ Convert MB into bytes
 
 	@ v2 = size of DA area
 t08:
+	ADD	sp, sp, #4
 	LDR	a1, .L0+8	@=dynamic_area_name_end
  PICEQ "LDR	a1, [v4, a1]"
 	MOV	a3, #0
