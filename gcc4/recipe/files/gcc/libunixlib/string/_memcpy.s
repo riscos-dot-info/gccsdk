@@ -13,7 +13,7 @@
 	@ using PLD which doesn't do anything on pre-armv6 architectures.
 .arch	armv6
 
-#if defined(__SOFTFP__) || (!defined(__VFP_FP__) && !defined(__ARM_NEON__))
+#if defined(__SOFTFP__) || !defined(__VFP_FP__) || !defined(__ARM_NEON__)
 
 	.global	memcpy
 	.global	memmove
