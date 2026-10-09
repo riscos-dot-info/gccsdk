@@ -41,6 +41,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     .altmacro
     .p2align 2
 
+#if !defined(__SOFTFP__) && defined(__VFP_FP__) && defined(__ARM_NEON__)
+
 /*
  *  size_t strlen (const char *__s);
  *  On entry:
@@ -157,5 +159,7 @@ myfunc strlen
         pop         {v1,pc}
 
         DECLARE_FUNCTION strlen
+
+#endif
 
 	.end

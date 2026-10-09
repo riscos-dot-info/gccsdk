@@ -41,6 +41,15 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     .altmacro
     .p2align 2
 
+#if !defined(__SOFTFP__) && defined(__VFP_FP__) && defined(__ARM_NEON__)
+
+myfunc bzero
+        mov     a3,a2
+        mov     a2,#0
+        b       1000f
+.endfunc
+	DECLARE_FUNCTION bzero
+
 /*
  *  void *memset(void *s, int c, size_t n);
  *  On entry:
@@ -55,6 +64,7 @@ myfunc memset
         N       .req    a3
         SI      .req    a4
         OFF     .req    ip
+1000:
         mov     SI, a1
         vdup.8  q0, a2
         cmp     N, #15+64
@@ -118,3 +128,9 @@ myfunc memset
         .unreq  OFF
 .endfunc
 	DECLARE_FUNCTION memset
+
+	.weak	memset
+	.weak	bzero
+#endif
+
+	.end

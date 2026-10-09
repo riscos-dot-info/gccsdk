@@ -1001,22 +1001,18 @@ string_src = \
 	string/strstr.c \
 	string/strtok.c \
 	string/swab.c \
-	string/_strcpy.s
-if ARM_EABI
-string_src += \
-	string/_memcpymove-v7l.s \
-	string/_memset-v7l.s \
-	string/_strlen-v7l.s
-else
-string_src += \
 	string/_memcpy.s \
+	string/_memcpymove-v7l.s \
 	string/_memset.s \
-	string/_strlen.s
-endif
+	string/_memset-v7l.s \
+	string/_strcpy.s \
+	string/_strlen.s \
+	string/_strlen-v7l.s
 endif
 string_src += \
 	string/memccpy.c \
 	string/memchr.c \
+	string/mempcpy.c \
 	string/stpcpy.c \
 	string/stpncpy.c \
 	string/strdup.c \
@@ -1029,10 +1025,6 @@ string_src += \
 	string/strtok_r.c \
 	string/_ffs.s \
 	string/_ffsll.s
-if !ARM_EABI
-string_src += \
-	string/mempcpy.c
-endif
 # support for POSIX-1.2008 extended locales
 string_src += \
 	string/strcasecmp_l.c \

@@ -12,6 +12,8 @@
 	.syntax unified
 	.text
 
+#if defined(__SOFTFP__) || !defined(__VFP_FP__) || !defined(__ARM_NEON__)
+
 	.global	strlen
 	NAME	strlen
 
@@ -82,5 +84,7 @@ strlen3:
 	B	strlen_lp
 
 	DECLARE_FUNCTION strlen
+
+#endif
 
 	.end
