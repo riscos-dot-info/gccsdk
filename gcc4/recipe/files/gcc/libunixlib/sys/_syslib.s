@@ -49,7 +49,7 @@
 	.weak	__dynamic_da_max_size
 	.weak   __stack_size
 
-#if defined(__ARM_ARCH) && (__ARM_ARCH__ < 6)
+#if !defined(__ARM_ARCH) || (__ARM_ARCH__ < 6)
 	/* Modern gas objects to our runtime-conditional use of LDREX/STREX
 	 * in here. If we're building for pre-armv6 architectures, tell gas
 	 * that to allow armv6 instructions, but mark the resulting object
@@ -1423,7 +1423,7 @@ __unixlib_fatal:
 	@ we go for a straight OS_Exit scenario.  Anything better we
 	@ can do ?
 	ADD	a3, a4, #GBL_PANIC_MODE
-#if !defined(__ARM_EABI__) || !defined(__ARM_ARCH) || (__ARM_ARCH < 6)
+#if !defined(__ARM_ARCH) || (__ARM_ARCH < 6)
 	LDR	a2, [a4, #GBL_CPU_FLAGS]
 	TST	a2, #__CPUCAP_HAVE_SWP
 	BEQ	0f
