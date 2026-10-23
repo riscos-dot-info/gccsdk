@@ -503,6 +503,14 @@ no_dynamic_area:
 	MOVCC	a1, #ERR_NO_FPE
 	BCC	__exit_with_error_num
 #endif
+#else
+#ifdef __ARM_EABI__
+	@ EABI with software FP. Burn the top of the stack to appease
+	@ ARMEABISupport (which does not consider the stack top address
+	@ as part of the stack).
+	SUB	sp, sp, #4
+	BIC	sp, sp, #7	@ AAPCS wants 8 byte alignment
+#endif
 #endif
 
 	@ We need to create this now so that we have its address to give to
