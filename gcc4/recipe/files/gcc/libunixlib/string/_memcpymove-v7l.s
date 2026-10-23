@@ -601,6 +601,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         .unreq  TMP
 .endm
 
+
+#if !defined(__SOFTFP__) && defined(__VFP_FP__) && defined(__ARM_NEON__)
+
 /*
  * void *memcpy(void * restrict s1, const void * restrict s2, size_t n);
  * On entry:
@@ -612,12 +615,17 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 .set prefetch_distance, 2
-        .global bcopy
-bcopy:
 myfunc memcpy
 1000:   memcpy  0
 .endfunc
         DECLARE_FUNCTION memcpy
+
+myfunc bcopy
+        mov     a4, a2
+        mov     a2, a1
+        mov     a1, a4
+        b       1000b
+.endfunc
         DECLARE_FUNCTION bcopy
 
 /*
@@ -639,21 +647,10 @@ myfunc memmove
 .endfunc
 	DECLARE_FUNCTION memmove
 
-/*
- * void *mempcpy(void * restrict s1, const void * restrict s2, size_t n);
- * On entry:
- * a1 = pointer to destination
- * a2 = pointer to source
- * a3 = number of bytes to copy
- * On exit:
- * a1 = pointer to immediately after destination block
- */
+	.weak	memcpy
+	.weak	memmove
+	.weak	bcopy
 
-myfunc mempcpy
-.global __mempcpy
-__mempcpy:
-        push    {v1, lr}
-        mov     v1, a3
-        bl      1000b
-        add     a1, a1, v1
-        pop     {v1, pc}
+#endif
+
+	.end
