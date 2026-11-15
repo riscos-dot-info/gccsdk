@@ -674,7 +674,11 @@ get_io_redir (const char *cli)
 #ifdef DEBUG
   debug_printf ("-- get_io_redir: checking <\n");
 #endif
-  for (const char *p = cli; (p = find_redirection_type (p, '<')) != NULL; ++p)
+  /* check_io_redir() leaves p on the character that ended the filename,
+     which is the terminator if the redirection ends the command line, so
+     don't step past it into whatever follows the string in memory.  */
+  for (const char *p = cli; (p = find_redirection_type (p, '<')) != NULL;
+       p += (*p != '\0'))
     {
       /* A redirector `<>' means read/write.  */
       int mode = (p[1] == '>') ? O_RDWR : O_RDONLY;
@@ -686,7 +690,8 @@ get_io_redir (const char *cli)
 #ifdef DEBUG
   debug_printf ("-- get_io_redir: checking >\n");
 #endif
-  for (const char *p = cli; (p = find_redirection_type (p, '>')) != NULL; ++p)
+  for (const char *p = cli; (p = find_redirection_type (p, '>')) != NULL;
+       p += (*p != '\0'))
     {
       if (p[-1] != '<')
 	{
