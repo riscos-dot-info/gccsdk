@@ -236,13 +236,13 @@ Disassembly of section CodeNonABS:
 			30: R_ARM_ALU_PC_G0	CodeBefore
   34:	e24f2008 	sub	r2, pc, #8
 			34: R_ARM_ALU_PC_G0_NC	CodeBefore
-  38:	e2422000 	sub	r2, r2, #0
+  38:	e2422004 	sub	r2, r2, #4
 			38: R_ARM_ALU_PC_G1	CodeBefore
   3c:	e28f3000 	add	r3, pc, #0
 			3c: R_ARM_ALU_PC_G0	CodeBefore
   40:	e28f4000 	add	r4, pc, #0
 			40: R_ARM_ALU_PC_G0_NC	CodeBefore
-  44:	e2844000 	add	r4, r4, #0
+  44:	e2844004 	add	r4, r4, #4
 			44: R_ARM_ALU_PC_G1	CodeBefore
   48:	e3a01020 	mov	r1, #32
   4c:	e3a02020 	mov	r2, #32
@@ -270,13 +270,13 @@ Disassembly of section CodeNonABS:
 			a0: R_ARM_ALU_PC_G0	CodeAfter
   a4:	e24f2008 	sub	r2, pc, #8
 			a4: R_ARM_ALU_PC_G0_NC	CodeAfter
-  a8:	e2422000 	sub	r2, r2, #0
+  a8:	e2422004 	sub	r2, r2, #4
 			a8: R_ARM_ALU_PC_G1	CodeAfter
   ac:	e28f3000 	add	r3, pc, #0
 			ac: R_ARM_ALU_PC_G0	CodeAfter
   b0:	e28f4000 	add	r4, pc, #0
 			b0: R_ARM_ALU_PC_G0_NC	CodeAfter
-  b4:	e2844000 	add	r4, r4, #0
+  b4:	e2844004 	add	r4, r4, #4
 			b4: R_ARM_ALU_PC_G1	CodeAfter
   b8:	e3a01020 	mov	r1, #32
   bc:	e3a02020 	mov	r2, #32
@@ -297,19 +297,19 @@ Disassembly of section CodeNonABS:
 			120: R_ARM_ALU_PC_G0	ImpLblB1
  124:	e24f2008 	sub	r2, pc, #8
 			124: R_ARM_ALU_PC_G0_NC	ImpLblB1
- 128:	e2422000 	sub	r2, r2, #0
+ 128:	e2422004 	sub	r2, r2, #4
 			128: R_ARM_ALU_PC_G1	ImpLblB1
  12c:	e24f3008 	sub	r3, pc, #8
 			12c: R_ARM_ALU_PC_G0	ImpLblA1
  130:	e24f4008 	sub	r4, pc, #8
 			130: R_ARM_ALU_PC_G0_NC	ImpLblA1
- 134:	e2444000 	sub	r4, r4, #0
+ 134:	e2444004 	sub	r4, r4, #4
 			134: R_ARM_ALU_PC_G1	ImpLblA1
  138:	e24f5008 	sub	r5, pc, #8
 			138: R_ARM_ALU_PC_G0	ImpLblNotDeclared
  13c:	e24f6008 	sub	r6, pc, #8
 			13c: R_ARM_ALU_PC_G0_NC	ImpLblNotDeclared
- 140:	e2466000 	sub	r6, r6, #0
+ 140:	e2466004 	sub	r6, r6, #4
 			140: R_ARM_ALU_PC_G1	ImpLblNotDeclared
  144:	e28a1000 	add	r1, sl, #0
 			144: R_ARM_ALU_SB_G0	ImpLblB2
@@ -327,13 +327,13 @@ Disassembly of section CodeNonABS:
 			15c: R_ARM_ALU_PC_G0	ImpLblB3
  160:	e24f6008 	sub	r6, pc, #8
 			160: R_ARM_ALU_PC_G0_NC	ImpLblB3
- 164:	e2466000 	sub	r6, r6, #0
+ 164:	e2466004 	sub	r6, r6, #4
 			164: R_ARM_ALU_PC_G1	ImpLblB3
  168:	e24f7008 	sub	r7, pc, #8
 			168: R_ARM_ALU_PC_G0	ImpLblA3
  16c:	e24f8008 	sub	r8, pc, #8
 			16c: R_ARM_ALU_PC_G0_NC	ImpLblA3
- 170:	e2488000 	sub	r8, r8, #0
+ 170:	e2488004 	sub	r8, r8, #4
 			170: R_ARM_ALU_PC_G1	ImpLblA3
  174:	e28c1018 	add	r1, ip, #24
  178:	e28c2018 	add	r2, ip, #24
@@ -385,13 +385,13 @@ Disassembly of section CodeABS:
 			30: R_ARM_ALU_PC_G0	CodeBefore
   34:	e24f2008 	.word	0xe24f2008
 			34: R_ARM_ALU_PC_G0_NC	CodeBefore
-  38:	e2422000 	sub	r2, r2, #0
+  38:	e2422004 	sub	r2, r2, #4
 			38: R_ARM_ALU_PC_G1	CodeBefore
   3c:	e28f3000 	add	r3, pc, #0
 			3c: R_ARM_ALU_PC_G0	CodeBefore
   40:	e28f4000 	add	r4, pc, #0
 			40: R_ARM_ALU_PC_G0_NC	CodeBefore
-  44:	e2844000 	add	r4, r4, #0
+  44:	e2844004 	add	r4, r4, #4
 			44: R_ARM_ALU_PC_G1	CodeBefore
   48:	e3a01020 	mov	r1, #32
   4c:	e3a02020 	mov	r2, #32
@@ -417,13 +417,13 @@ Disassembly of section CodeABS:
 			98: R_ARM_ALU_PC_G0	CodeAfter
   9c:	e24f2008 	sub	r2, pc, #8
 			9c: R_ARM_ALU_PC_G0_NC	CodeAfter
-  a0:	e2422000 	sub	r2, r2, #0
+  a0:	e2422004 	sub	r2, r2, #4
 			a0: R_ARM_ALU_PC_G1	CodeAfter
   a4:	e28f3000 	add	r3, pc, #0
 			a4: R_ARM_ALU_PC_G0	CodeAfter
   a8:	e28f4000 	add	r4, pc, #0
 			a8: R_ARM_ALU_PC_G0_NC	CodeAfter
-  ac:	e2844000 	add	r4, r4, #0
+  ac:	e2844004 	add	r4, r4, #4
 			ac: R_ARM_ALU_PC_G1	CodeAfter
   b0:	e3a01020 	mov	r1, #32
   b4:	e3a02020 	mov	r2, #32
@@ -444,19 +444,19 @@ Disassembly of section CodeABS:
 			118: R_ARM_ALU_PC_G0	ImpLblB1
  11c:	e24f2008 	sub	r2, pc, #8
 			11c: R_ARM_ALU_PC_G0_NC	ImpLblB1
- 120:	e2422000 	sub	r2, r2, #0
+ 120:	e2422004 	sub	r2, r2, #4
 			120: R_ARM_ALU_PC_G1	ImpLblB1
  124:	e24f3008 	sub	r3, pc, #8
 			124: R_ARM_ALU_PC_G0	ImpLblA1
  128:	e24f4008 	sub	r4, pc, #8
 			128: R_ARM_ALU_PC_G0_NC	ImpLblA1
- 12c:	e2444000 	sub	r4, r4, #0
+ 12c:	e2444004 	sub	r4, r4, #4
 			12c: R_ARM_ALU_PC_G1	ImpLblA1
  130:	e24f5008 	sub	r5, pc, #8
 			130: R_ARM_ALU_PC_G0	ImpLblNotDeclared
  134:	e24f6008 	sub	r6, pc, #8
 			134: R_ARM_ALU_PC_G0_NC	ImpLblNotDeclared
- 138:	e2466000 	sub	r6, r6, #0
+ 138:	e2466004 	sub	r6, r6, #4
 			138: R_ARM_ALU_PC_G1	ImpLblNotDeclared
  13c:	e28a1000 	add	r1, sl, #0
 			13c: R_ARM_ALU_SB_G0	ImpLblB2
@@ -474,13 +474,13 @@ Disassembly of section CodeABS:
 			154: R_ARM_ALU_PC_G0	ImpLblB3
  158:	e24f6008 	sub	r6, pc, #8
 			158: R_ARM_ALU_PC_G0_NC	ImpLblB3
- 15c:	e2466000 	sub	r6, r6, #0
+ 15c:	e2466004 	sub	r6, r6, #4
 			15c: R_ARM_ALU_PC_G1	ImpLblB3
  160:	e24f7008 	sub	r7, pc, #8
 			160: R_ARM_ALU_PC_G0	ImpLblA3
  164:	e24f8008 	sub	r8, pc, #8
 			164: R_ARM_ALU_PC_G0_NC	ImpLblA3
- 168:	e2488000 	sub	r8, r8, #0
+ 168:	e2488004 	sub	r8, r8, #4
 			168: R_ARM_ALU_PC_G1	ImpLblA3
  16c:	e28c1018 	add	r1, ip, #24
  170:	e28c2018 	add	r2, ip, #24

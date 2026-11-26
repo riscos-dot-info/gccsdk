@@ -377,16 +377,36 @@ DefineInt_HandleSymbols (unsigned size, bool allowUnaligned, bool swapHalfwords,
 		    }
 		  while (numRelocs--)
 		    {
-		      uint32_t how2AOF;
+		      uint32_t how2AOF, how2ELF;
 		      if (relative < 0)
 			{
 			  ++relative;
 			  how2AOF = howAOF | HOW2_RELATIVE;
+			  /* "sym - label", label in this area: ELF needs
+			     R_ARM_REL32 (S + A - P), so the addend gains the
+			     field's own offset.  */
+			  how2ELF = R_ARM_REL32;
+			  if (!option_aof)
+			    {
+			      if (size != 4)
+				{
+				  /* Not implemented because ARM ELF has no 8 or
+				     16-bit PC-relative data relocation.  */
+				  if (gPhase != ePassOne)
+				    Error (ErrorError, "%u-byte symbol minus label in this area has no ELF relocation, use a 4-byte field",
+					   size);
+				  return true;
+				}
+			      armValue += relocOffset;
+			    }
 			}
 		      else
-			how2AOF = howAOF;
+			{
+			  how2AOF = howAOF;
+			  how2ELF = howELF;
+			}
 		      Reloc_CreateAOF (how2AOF, relocOffset, &value);
-		      Reloc_CreateELF (howELF, relocOffset, &value);
+		      Reloc_CreateELF (how2ELF, relocOffset, &value);
 		    }
 		  break;
 		}
