@@ -6,6 +6,6 @@ install-minimum:
 
 # Only do the asasm unittests (and not those of decaof or elftoolchain).
 check-minimum:
-	$(MAKE) $(AM_MAKEFLAGS) check SUBDIRS='unittests/compare unittests/reloc'
+	$(MAKE) $(AM_MAKEFLAGS) check SUBDIRS='unittests/compare unittests/reloc unittests/link'
 
-SUBDIRS = decaof elftoolchain src unittests/compare unittests/reloc
+SUBDIRS = decaof elftoolchain src unittests/compare unittests/reloc unittests/link

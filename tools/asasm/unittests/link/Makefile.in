@@ -1,0 +1,58 @@
+# Assembles each test, links it with GNU ld against src/ext.s and compares
+# the linked bytes of the test's code area with ref/<test>.txt.
+#
+# Unlike unittests/reloc, this catches relocations which readelf shows as
+# plausible but which the linker resolves to the wrong value (such as an ADRL
+# whose two group relocations disagree).  ELF only; AOF is not linked.
+#
+# To specify extra ASASM command line parameters, use RUNOPT as in
+# unittests/reloc.
+
+ASASM := @top_builddir@/src/asasm
+LD := arm-unknown-eabi-ld
+OBJCOPY := arm-unknown-eabi-objcopy
+ASASMFLAGS := -elf
+LDFLAGS := -nostdlib -Ttext=0x8000 -e go
+OD := od
+ODFLAGS := -A x -t x1 -v
+ECHO := echo
+MKDIR := mkdir
+DIFF := diff
+DIFFFLAGS := -u
+
+check_SRC_FILES := $(filter-out ext.s,$(notdir $(wildcard @srcdir@/src/*.s)))
+check_OUT_FILES := $(check_SRC_FILES:%.s=out/%.txt)
+
+V := @
+
+vpath %.s @srcdir@/src
+
+all:
+
+check: $(check_OUT_FILES)
+	@$(ECHO) "*** All 'link' tests were OK"
+
+install:
+
+clean:
+	-rm -rf out
+
+distclean: clean
+
+out/%.o: %.s
+	$(V)$(MKDIR) -p out
+	$(V)$(ASASM) $(ASASMFLAGS) $(shell head -5 $< | grep -E "RUNOPT:" | sed -r -e "s/^.*RUNOPT://") -o $@ $<
+
+out/%.txt: out/%.o out/ext.o @srcdir@/ref/%.txt
+	@$(ECHO) +++ Checking linked output for $*
+	$(V)$(LD) $(LDFLAGS) -o out/$*.elf out/$*.o out/ext.o
+	$(V)$(OBJCOPY) -O binary -j 'Asm$$$$Code' out/$*.elf out/$*.bin
+	$(V)$(OD) $(ODFLAGS) out/$*.bin > $@
+	$(V)$(DIFF) $(DIFFFLAGS) @srcdir@/ref/$*.txt $@ || (mv $@ $(@:%.txt=%_failed.txt) && false)
+
+# Keep the objects for inspecting a failure.
+.PRECIOUS: out/%.o
+
+.PHONY: all check install clean distclean
+.SUFFIXES:
+.SUFFIXES: .o .s .txt

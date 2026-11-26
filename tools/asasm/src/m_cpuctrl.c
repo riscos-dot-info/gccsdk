@@ -854,8 +854,15 @@ ADR_RelocUpdaterCore (uint32_t constant, int baseReg, uint32_t baseInstr,
     }
   else
     split[3].num = split[2].num = INT_MAX;
+  /* ELF relocations for ADR/ADRL are ALU group relocations, which only apply
+     to ADD/SUB.  MOV/MVN/MOVW/MOV32 would drop the base register.  */
+  bool elfReloc = canSwitch == eCS_NoBecauseReloc && !option_aof
+		  && !baseRegUnspecified;
+  if (elfReloc)
+    split[3].num = split[2].num = INT_MAX;
   /* MOVW or MOV32 */
-  if (Target_CheckCPUFeature (kCPUExt_v6T2, false)
+  if (!elfReloc
+      && Target_CheckCPUFeature (kCPUExt_v6T2, false)
       && (baseRegUnspecified
           || (baseReg == 15 && (areaCurrentSymbol->attr.area->type & AREA_ABS) != 0)))
     {
@@ -890,7 +897,8 @@ ADR_RelocUpdaterCore (uint32_t constant, int baseReg, uint32_t baseInstr,
       else
 	sprintf (toEncode, "[r%d, #&%x]", baseReg, constant);
     }
-  if (bestScore >= 3 || (bestScore == 2 && !isADRL))
+  bool encodeErr = bestScore >= 3 || (bestScore == 2 && !isADRL);
+  if (encodeErr)
     {
       if ((areaCurrentSymbol->attr.area->type & AREA_ABS) != 0)
 	Error (ErrorError, "%s at area offset 0x%x with base address 0x%x can not be used to encode %s",
@@ -980,8 +988,30 @@ ADR_RelocUpdaterCore (uint32_t constant, int baseReg, uint32_t baseInstr,
 	  if (bestIndex < 2 /* = when ADD/SUB is used */ || n != 0)
 	    irs = irs | LHS_OP (n == 0 ? (ARMWord)baseReg : GET_DST_OP(baseInstr));
 
-	  uint32_t i8s4 = HelpCPU_Imm8s4 (split[bestIndex].try[n]);
-	  assert (i8s4 != UINT32_MAX);
+	  uint32_t i8s4;
+	  if (elfReloc && baseReg == 15)
+	    {
+	      /* GNU ld (REL) takes each instruction's own immediate as the
+		 addend and relocates it against its own address, so every
+		 instruction encodes the whole addend, plus 4 per instruction
+		 after the first, and not a share of it.  */
+	      int32_t addend = (int32_t)constant + 4*n;
+	      irs = (irs & ~(M_ADD | M_SUB)) | (addend < 0 ? M_SUB : M_ADD);
+	      i8s4 = HelpCPU_Imm8s4 (addend < 0 ? -(uint32_t)addend : (uint32_t)addend);
+	      if (i8s4 == UINT32_MAX)
+		{
+		  if (!encodeErr)
+		    Error (ErrorError, "%s addend %d can not be encoded in an ELF relocation",
+			   isADRL ? "ADRL" : "ADR", (int)addend);
+		  encodeErr = true;
+		  i8s4 = 0;
+		}
+	    }
+	  else
+	    {
+	      i8s4 = HelpCPU_Imm8s4 (split[bestIndex].try[n]);
+	      assert (i8s4 != UINT32_MAX);
+	    }
 	  irs |= i8s4;
 
 	  Put_Ins (4, irs);
@@ -999,7 +1029,7 @@ ADR_RelocUpdaterCore (uint32_t constant, int baseReg, uint32_t baseInstr,
 	{
 	  assert (split[bestIndex].try[1] != 0);
 	  Put_Ins_MOVW_MOVT (cc, destReg, split[bestIndex].try[1], true);
-	  result.instrType[0] = eADRInstrType_MOVT;
+	  result.instrType[1] = eADRInstrType_MOVT;
 	}
     }
   if (bestScore == 1  && isADRL && canSwitch == eCS_NoBecauseForwardLabel)
